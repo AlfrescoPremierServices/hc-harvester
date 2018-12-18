@@ -1,0 +1,6 @@
+---
+catalina_logdir: "{{ catalina_logdir_cfg.stdout | regex_replace('.*=\\s*(.*)', '\\1') | regex_replace('\\${catalina\\.base}', catalina_base) }}"
+catalina_logprefix: "{{ catalina_logprefix_cfg.stdout | regex_replace('.*=\\s*(.*)', '\\1') }}"
+gc_log_pattern_is_absolute: "{{ gc_log_pattern | regex_search('^/') }}"
+gc_log_prefix: "{{ gc_log_pattern | regex_search('.*%') | replace('%', '') }}"
+gc_log_file: "{% if gc_log_pattern_is_absolute == '/' %}{{ gc_log_prefix }}{% else %}{{ catalina_base }}/{{ gc_log_prefix }}{% endif %}"

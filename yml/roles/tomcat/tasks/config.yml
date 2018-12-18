@@ -1,0 +1,47 @@
+- name: Get Tomcat log directory config
+  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.directory' {{ ps_tomcat.stdout | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}      
+  become: yes
+  become_user: "{{ tomcat_user }}"
+  register: catalina_logdir_cfg
+
+- name: Get Tomcat log file prefix config
+  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.prefix' {{ ps_tomcat.stdout | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}         
+  become: yes
+  become_user: "{{ tomcat_user }}"
+  register: catalina_logprefix_cfg
+
+- name: Get Tomcat working dir
+  stat:
+    path: /proc/{{ tomcat_pid }}/cwd
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: tomcat_cwd
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
+- name: Read Tomcat config file
+  xml:
+    path: "{{ catalina_base }}/conf/server.xml"
+    xpath: /Server/Service/Connector[@protocol='HTTP/1.1']
+    content: attribute
+    attribute: port
+  register: tomcat_connector
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
+- name: Locate Tomcat log files
+  include_vars: tomcat_log.yml
+
+- name: Export required variables
+  set_fact:
+    to_archive: [ { logfiles: "{{ catalina_logdir }}/{{ catalina_logprefix }}*", archive: "/tmp/{{ webapp_server_product }}.log.tar.gz" } ]
+    webapp_server_port: "{{ tomcat_connector.matches[0]['Connector']['port'] | default('8080') }}"
+    webapp_server_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
+
+- name: Add GC log files to the list of assets to archive
+  set_fact:
+    gc_log_dict: { logfiles: "{{ gc_log_file }}*" , archive: "/tmp/{{ webapp_server_product }}-GClog.tar.gz" }
+    to_archive: "{{ to_archive }} + [ '{{ gc_log_dict }}' ]"
+  when: ps_tomcat.stdout.find('-Xloggc') != -1
+

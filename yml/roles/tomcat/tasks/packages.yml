@@ -1,0 +1,13 @@
+---
+- name: Install required packages (RHEL like)
+  yum:
+    name: python-lxml
+  when: ansible_pkg_mgr == 'yum' and ps_tomcat.rc == 0
+  become: yes
+
+- name: Install required packages (Debian Like)
+  apt:
+    name: python-lxml
+  when: ansible_pkg_mgr == 'apt' and ps_tomcat.rc == 0
+  become: yes
+

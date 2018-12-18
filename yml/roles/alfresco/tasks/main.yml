@@ -1,0 +1,43 @@
+---
+- name: get server info
+  uri:
+    url: http://localhost:{{ webapp_server_port }}/{{ alfresco_context }}/s/api/server
+    return_content: yes
+  register: srv_info
+
+- name: Read secrets from secured location
+  include_vars: secrets.yml
+
+- name: debug
+  debug: msg={{ srv_info.json.data.version | regex_search('[0-9](\.[0-9]+)*') }}
+
+- name: Archive Alfresco log files
+  archive:
+    dest: /tmp/alfresco.log.tar.gz
+    path: "{{ tomcat_cwd }}/alfresco.log*"
+    mode: 0644
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
+
+- name: Fetch archived log files
+  fetch:
+    src: /tmp/alfresco.log.tar.gz
+    dest: ../assets/{{ inventory_hostname }}/logs/
+    flat: yes
+
+- name: Generate Alfresco JMX dump
+  get_url: 
+    url: http://localhost:{{ webapp_server_port }}/{{ alfresco_context }}/s/api/admin/jmxdump
+    dest: /tmp/jmxdump-{{ inventory_hostname }}.zip
+    force_basic_auth: yes
+    url_username: "{{ alfresco_admin_user }}"
+    url_password: "{{ alfresco_admin_password }}"
+
+- name: Fetch jmxdump
+  fetch:
+    src: /tmp/jmxdump-{{ inventory_hostname }}.zip
+    dest: ../assets/{{ inventory_hostname }}/conf/
+    flat: yes
+
+

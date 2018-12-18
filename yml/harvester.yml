@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Cleanup harvester directory structure (deletes previous runs data)
+      file:
+        state: absent
+        path: '../assets/'
+
