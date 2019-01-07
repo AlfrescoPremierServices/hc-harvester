@@ -1,11 +1,15 @@
+---
+- name: Set process variables
+  include_vars: tomcat_args.yml
+
 - name: Get Tomcat log directory config
-  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.directory' {{ ps_tomcat.stdout | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}      
+  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.directory' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}      
   become: yes
   become_user: "{{ tomcat_user }}"
   register: catalina_logdir_cfg
 
 - name: Get Tomcat log file prefix config
-  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.prefix' {{ ps_tomcat.stdout | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}         
+  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.prefix' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}         
   become: yes
   become_user: "{{ tomcat_user }}"
   register: catalina_logprefix_cfg
@@ -33,15 +37,56 @@
 - name: Locate Tomcat log files
   include_vars: tomcat_log.yml
 
+# WARNING loop order matters as positional arguments are used later in play
+- name: Check deployed Tomcat webapps
+  stat: 
+    path: "{{ catalina_base }}/webapps/{{ item }}"
+    get_attributes: no
+    follow: yes
+  register: webapp_path
+  ignore_errors: True
+  loop:
+    - "{{ alfresco_context }}"
+    - "{{ share_context }}"
+    - "{{ solr_context }}"
+
 - name: Export required variables
   set_fact:
-    to_archive: [ { logfiles: "{{ catalina_logdir }}/{{ catalina_logprefix }}*", archive: "/tmp/{{ webapp_server_product }}.log.tar.gz" } ]
+    to_archive: [ { logfiles: "{{ catalina_logdir }}/{{ catalina_logprefix }}*", archive: "/tmp/{{ webapp_server_product }}{{ outer_loop_key }}.log.tar.gz" } ]
     webapp_server_port: "{{ tomcat_connector.matches[0]['Connector']['port'] | default('8080') }}"
     webapp_server_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
 
+- name: Export Alfresco Specific variables
+  set_fact:
+    alfresco_port: "{{ webapp_server_port }}"
+    alfresco_base: "{{ webapp_server_base }}"
+    alfresco_cwd: "{{ tomcat_cwd }}"
+    alfresco_user: "{{ tomcat_user }}"
+  when: webapp_path.results[0].stat.exists == True
+
+- name: Export Share Specific variables
+  set_fact:
+    share_port: "{{ webapp_server_port }}"
+    share_base: "{{ webapp_server_base }}"
+    share_cwd: "{{ tomcat_cwd }}"
+    share_user: "{{ tomcat_user }}"
+  when: webapp_path.results[1].stat.exists == True
+
+- name: Export Solr Specific variables
+  set_fact:
+    solr_port: "{{ webapp_server_port }}"
+    solr_base: "{{ webapp_server_base }}"
+    solr_cwd: "{{ tomcat_cwd }}"
+    solr_user: "{{ tomcat_user }}"
+  when: webapp_path.results[2].stat.exists == True
+
+- name: build file list
+  set_fact:
+    gc_log_dict: [{  logfiles: "{{ gc_log_file }}*" , archive: "/tmp/{{ webapp_server_product }}{{ outer_loop_key }}-GClog.tar.gz" } ]
+
 - name: Add GC log files to the list of assets to archive
   set_fact:
-    gc_log_dict: { logfiles: "{{ gc_log_file }}*" , archive: "/tmp/{{ webapp_server_product }}-GClog.tar.gz" }
-    to_archive: "{{ to_archive }} + [ '{{ gc_log_dict }}' ]"
-  when: ps_tomcat.stdout.find('-Xloggc') != -1
+    to_archive: "{{ to_archive }} + {{ gc_log_dict }}"
+  when: outer_loop.find('-Xloggc') != -1
 
+- import_tasks: collect.yml

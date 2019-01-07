@@ -1,6 +1,7 @@
 ---
 - hosts: localhost
   connection: local
+  gather_facts: no
   tasks:
     - name: Cleanup harvester directory structure (deletes previous runs data)
       file:

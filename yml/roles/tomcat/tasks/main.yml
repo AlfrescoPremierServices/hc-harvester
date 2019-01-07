@@ -1,23 +1,8 @@
 ---
 - include: packages.yml
 - include: config.yml
-
-- name: Archive {{ webapp_server_product }} log files
-  archive:
-    dest: "{{ item.archive }}"
-    path: "{{ item.logfiles }}"
-    mode: 0644
-  become: yes
-  become_user: "{{ tomcat_user }}"
-  with_items:
-    - "{{ to_archive }}"
-
-
-- name: Fetch archived log files
-  fetch:
-    src: "{{ item.archive }}"
-    dest: ../assets/{{ inventory_hostname }}/logs/
-    flat: yes
-  with_items:
-    - "{{ to_archive }}"
+  loop: "{{ ps_tomcat.stdout_lines }}"
+  loop_control:
+    loop_var: outer_loop
+    index_var: outer_loop_key
 
