@@ -10,11 +10,11 @@
     - name: Initialize tomcat facts
       set_fact:
         webapp_server_product: 'tomcat'
-      when: ps_tomcat.rc == 0
+      when: ps_tomcat is defined and ps_tomcat.rc == 0
 
   roles:
     - role: tomcat
-      when: webapp_server_product is defined and webapp_server_product == 'tomcat' and ps_tomcat.stdout_lines | length > 0
+      when: webapp_server_product is defined and webapp_server_product == 'tomcat' and ps_tomcat is defined and ps_tomcat.stdout_lines | length > 0
 
 - hosts: repo_tiers
   roles:
@@ -23,4 +23,8 @@
 - hosts: share_tiers
   roles:
     - role: share
+
+- hosts: index_tiers
+  roles:
+    - role: solr
 

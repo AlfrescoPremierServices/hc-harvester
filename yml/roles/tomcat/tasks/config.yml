@@ -50,9 +50,13 @@
     - "{{ share_context }}"
     - "{{ solr_context }}"
 
+- name: Export Catalina variables
+  set_fact:
+    catalina_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ catalina_logdir }}/{{ catalina_logprefix }}*", archive: "/tmp/{{ webapp_server_product }}{{ outer_loop_key }}.log.tar.gz" } ]
+
 - name: Export required variables
   set_fact:
-    to_archive: [ { logfiles: "{{ catalina_logdir }}/{{ catalina_logprefix }}*", archive: "/tmp/{{ webapp_server_product }}{{ outer_loop_key }}.log.tar.gz" } ]
+    to_archive: "{{ to_archive }} + {{ catalina_dict }}"
     webapp_server_port: "{{ tomcat_connector.matches[0]['Connector']['port'] | default('8080') }}"
     webapp_server_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
 
@@ -82,11 +86,11 @@
 
 - name: build file list
   set_fact:
-    gc_log_dict: [{  logfiles: "{{ gc_log_file }}*" , archive: "/tmp/{{ webapp_server_product }}{{ outer_loop_key }}-GClog.tar.gz" } ]
+    gc_log_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ gc_log_file }}*", archive: "/tmp/{{ webapp_server_product }}{{ outer_loop_key }}-GClog.tar.gz" } ]
 
 - name: Add GC log files to the list of assets to archive
   set_fact:
     to_archive: "{{ to_archive }} + {{ gc_log_dict }}"
   when: outer_loop.find('-Xloggc') != -1
 
-- import_tasks: collect.yml
+#- import_tasks: collect.yml

@@ -1,0 +1,39 @@
+---
+- name: Archive Solr log files
+  archive:
+    dest: /tmp/solr-log.tar.gz
+    path: "{{ solr_cwd.stat.lnk_target }}/solr.log*"
+    mode: 0644
+  become: yes
+  become_user: "{{ solr_user }}"
+
+- name: Fetch archived log files
+  fetch:
+    src: /tmp/solr-log.tar.gz
+    dest: ../assets/{{ inventory_hostname }}/logs/
+    flat: yes
+
+#- name: Get Solr config
+#  xml:
+#    path: "{{ catalina_base }}/conf/server.xml"
+#    xpath: /Server/Service/Connector[@protocol='HTTP/1.1']
+#    content: attribute
+#    attribute: port
+#  register: tomcat_connector
+#  become: yes
+#  become_user: "{{ tomcat_user }}"
+#
+#- name: Archive Cores config directory
+#  archive:
+#    dest: /tmp/solr-cores-cfg.tar.gz
+#    path: "{{ alfresco_base }}/shared/classes/alfresco/web-extension"
+#    mode: 0644
+#  become: yes
+#  become_user: "{{ solr_user }}"
+#
+#- name: Fetch archived Solr config
+#  fetch:
+#    src: /tmp/solr-cores-cfg.tar.gz
+#    dest: ../assets/{{ inventory_hostname }}/conf/
+#    flat: yes
+
