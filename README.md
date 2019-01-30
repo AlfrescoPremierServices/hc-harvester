@@ -41,7 +41,18 @@ $ ansible-vault rekey yml/roles/alfresco/vars/secrets.yml
 
 hc-harvester tries to guess most of the configuration so you don't spend time on trying to fill-in some configuration file. But in some cases it may not be as clever as you'd expect and it's better to just use statically defined variables. Using hosts and groups variables can be a good solution. Here are the variables that can be overridden:
 
-> #TODO
+##### Web applications contexts
+
+It is possible to configure Alfresco Content Service, Share or even Solr to use differents tomcat contexts. If so you can specify them in the respective group variable files `group_vars/all`:
+
+```
+solr_version: 4
+solr_context: 'mysearch'
+alfresco_context: 'myecm'
+share_context: 'mycollab'
+```
+
+> #TOCOMPLETE
 
 ### Execute
 
@@ -60,6 +71,7 @@ You will be prompted for both:
 ## TODO
 
  * Complete most common environement (Linux, tomcat, postgreSQL)
+ * Add support for Solr6/Alfresco Search Servives
  * Add appropriate tasks for windows
  * Add other J2EE servers tasks
  * Plenty of stuff!
