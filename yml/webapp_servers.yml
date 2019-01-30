@@ -20,3 +20,7 @@
   roles:
     - role: alfresco
 
+- hosts: share_tiers
+  roles:
+    - role: share
+

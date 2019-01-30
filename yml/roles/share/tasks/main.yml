@@ -1,0 +1,29 @@
+---
+- name: Archive Share log files
+  archive:
+    dest: /tmp/share-log.tar.gz
+    path: "{{ share_cwd.stat.lnk_target }}/share.log*"
+    mode: 0644
+  become: yes
+  become_user: "{{ share_user }}"
+
+- name: Archive extension directory
+  archive:
+    dest: /tmp/alfresco-web-extension.tar.gz
+    path: "{{ alfresco_base }}/shared/classes/alfresco/web-extension"
+    mode: 0644
+  become: yes
+  become_user: "{{ share_user }}"
+
+- name: Fetch archived extension root
+  fetch:
+    src: /tmp/alfresco-web-extension.tar.gz
+    dest: ../assets/{{ inventory_hostname }}/conf/
+    flat: yes
+
+- name: Fetch archived log files
+  fetch:
+    src: /tmp/share-log.tar.gz
+    dest: ../assets/{{ inventory_hostname }}/logs/
+    flat: yes
+
