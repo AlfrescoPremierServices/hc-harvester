@@ -1,0 +1,25 @@
+,,,,,
+,CPU num,CPU Freq,Cores num,core thread count,
+,{{ ansible_processor_count }},{{ ansible_processor[ansible_processor|length - 1] }},{{ ansible_processor_cores }},{{ ansible_processor_threads_per_core }},
+,,,,,
+,RAM size,RAM free,RAM free nocache,,
+,{{ ansible_memtotal_mb }},{{ ansible_memfree_mb }},{{ ansible_memory_mb['nocache']['free'] }},,
+,,,,,
+,SWAP size,SWAP free,,,
+,{{ ansible_swaptotal_mb }},{{ ansible_swapfree_mb }},,,
+,,,,,
+,DRIVE,MOUNTPOINT,FS TYPE,SIZE,FREE
+{% for item in ansible_mounts %}
+,{{ item['device'] }},{{ item['mount'] }},{{ item['fstype'] }},{{ item['size_total'] }},{{ item['size_available'] }}
+{% endfor %}
+,,,,,
+,System setting,status,,,
+,Architecture,{{ ansible_architecture }},,,
+,AppArmor,{{ ansible_apparmor['status'] }},,,
+,OS_system,{{ ansible_system }},,,
+,OS_distribution,{{ ansible_distribution }},,,
+,OS_version,{{ ansible_distribution_version }},,,
+,OS platform,{{ ansible_product_name }},,,
+,SELinux,{{ ansible_selinux['status'] }},,,
+,ansible user,{{ ansible_user_id }},,,
+,virtualization_type,{{ ansible_virtualization_type }},,,
