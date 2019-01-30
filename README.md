@@ -8,7 +8,7 @@ This ansible playbook allows Alfresco Premier Services engineers to get informat
 
 You of course need Ansible in order to use this playbook (version 2.4 minimum is needed as we use the xml Ansible module).
 Ansible-vault is also needed in order to store and access sensitive informations like passwords.
-Remote machines will need python 2.7.
+Remote machines will need python 2.7 and SuSE based systems also need the ython-xml module installed..
 You need SSH access to the target infrastructure together with administrative rights on the machine (small packages may be required - e.g. python2-lxml).
 The playbook has been written and tested with Ansible 2.7.
 
