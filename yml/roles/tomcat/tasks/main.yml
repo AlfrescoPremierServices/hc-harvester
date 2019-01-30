@@ -9,9 +9,16 @@
   ignore_errors: true
 
 - include: packages.yml
+
+- name: Initialize archive variable
+  set_fact:
+     to_archive: []
+
 - include: config.yml
   loop: "{{ ps_tomcat.stdout_lines }}"
   loop_control:
     loop_var: outer_loop
     index_var: outer_loop_key
+  when: ps_tomcat is defined
 
+- include: collect.yml
