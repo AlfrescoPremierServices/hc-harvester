@@ -2,7 +2,7 @@
 - name: Get generic values for this system
   connection: local
   template:
-    dest: ../assets/{{ inventory_hostname }}
+    dest: ../assets/{{ inventory_hostname }}/
     src: system.csv
     newline_sequence: \r\n
 
