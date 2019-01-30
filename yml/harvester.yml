@@ -8,10 +8,6 @@
         state: absent
         path: '../assets/'
 
-- hosts: localhost
-  connection: local
-  gather_facts: no
-  tasks:
     - name: Recreate assets directory
       file:
         state: directory
