@@ -1,7 +1,7 @@
 ---
 # solr_version Must be one of 1, 4. Alfresco Search Service using Solr6 is not yet supported.
-solr_version: 1
-solr_context: "{% if solr_version == '4' %}solr4{% else %}solr{% endif %}"
+solr_version: 4
+solr_context: "{% if solr_version == 4 %}solr4{% else %}solr{% endif %}"
 alfresco_context: 'alfresco'
 share_context: 'share'
 
