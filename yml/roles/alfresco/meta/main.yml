@@ -1,3 +1,3 @@
 ---
-dependencies:
-  - { role: tomcat }
+# Depends on tomcat role but dependencie is not declared
+# to avoid multiple execution of the role
