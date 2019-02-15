@@ -11,5 +11,7 @@
     - name: Recreate assets directory
       file:
         state: directory
-        path: '../assets/'
+        path: '../assets/{{ item }}'
+      with_items:
+        - "{{ groups['all'] }}"
 
