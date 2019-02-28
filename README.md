@@ -6,9 +6,15 @@ This ansible playbook allows Alfresco Premier Services engineers to get informat
 
 ### Software requirement
 
-You of course need Ansible in order to use this playbook (version 2.4 minimum is needed as we use the xml Ansible module).
+You of course need Ansible in order to use this playbook.
+Tomcat port autodetection logic may not work if you're using Ansible lower than 2.4 as it uses the xml module.
+This xml module in turn require python-lxml 2.3 or above, whi in turn require python 2.7. If you can't satisfy this requirement you may want to try disabling the Tomcat port autodeteection (see bellow).
+
 Ansible-vault is also needed in order to store and access sensitive informations like passwords.
-Remote machines will need python 2.7 and SuSE based systems also need the ython-xml module installed..
+
+Remote machines will need python. Version 2.7 of python is recommended as a minimum. The playbook may stiil run on 2.6 if tomcat port autodetection is disabled.
+SuSE based systems also need the python-xml module installed before being able to play the playbook.
+
 You need SSH access to the target infrastructure together with administrative rights on the machine (small packages may be required - e.g. python2-lxml).
 The playbook has been written and tested with Ansible 2.7.
 
@@ -50,6 +56,34 @@ solr_version: 4
 solr_context: 'mysearch'
 alfresco_context: 'myecm'
 share_context: 'mycollab'
+```
+#### Disabling Tomcat port autodetection (Specifying tomcat port)
+
+The playbook normally guess the port tomcat is running on automatically. If this process fails for any reason, it is still possible to specify the port manually.
+There are 2 wayd of doing so.
+
+##### All tomcat are using the same port
+
+You can then add the variable bellow in the `tomcat_servers` group variable file `groups_vars/tomcat_servers`
+
+```
+webapp_server_port: 7979
+```
+
+##### Tomcat servers are using different ports
+
+You'll then have to specify the tomcat port for each host using hosts variables. For example, for the hosts `node1.domain.tld` & `node2.domain.tld`, you would have
+
+`host_vars/node1.domain.tld`
+
+```
+webapp_server_port: 7979
+```
+
+and `host_vars/node2.domain.tld`
+
+```
+webapp_server_port: 9393
 ```
 
 > #TOCOMPLETE
