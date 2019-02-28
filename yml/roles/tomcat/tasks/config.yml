@@ -27,7 +27,7 @@
 - name: Read Tomcat config file
   xml:
     path: "{{ catalina_base }}/conf/server.xml"
-    xpath: /Server/Service/Connector[@protocol='HTTP/1.2']
+    xpath: /Server/Service/Connector[@protocol='HTTP/1.1']
     content: attribute
     attribute: port
   register: tomcat_connector
