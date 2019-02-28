@@ -6,3 +6,10 @@ localhost
 
 [index_tiers]
 localhost
+
+[tomcat_servers:children]
+repo_tiers
+share_tiers
+#Comment out if using Solr6 Alfresco Search Service or Insight Engine
+index_tiers
+
