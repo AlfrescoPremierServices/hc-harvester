@@ -33,6 +33,7 @@
   register: tomcat_connector
   become: yes
   become_user: "{{ tomcat_user }}"
+  when: hostvars[inventory_hostname]['webapp_server_port'] is undefined
 
 - name: Locate Tomcat log files
   include_vars: tomcat_log.yml
@@ -57,7 +58,7 @@
 - name: Export required variables
   set_fact:
     to_archive: "{{ to_archive }} + {{ catalina_dict }}"
-    webapp_server_port: "{{ tomcat_connector.matches[0]['Connector']['port'] | default('8080') }}"
+    webapp_server_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
     webapp_server_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
 
 - name: Export Alfresco Specific variables
