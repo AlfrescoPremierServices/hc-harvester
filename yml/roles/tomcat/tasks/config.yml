@@ -67,6 +67,7 @@
     alfresco_base: "{{ webapp_server_base }}"
     alfresco_cwd: "{{ tomcat_cwd }}"
     alfresco_user: "{{ tomcat_user }}"
+    alfresco_shared_loader: "{% if alfresco_shared_loader is defined %}{{ alfresco_shared_loader }}{% else %}{{ webapp_server_base }}/shared/classes{% endif %}"
   when: webapp_path.results[0].stat.exists == True
 
 - name: Export Share Specific variables
@@ -75,6 +76,7 @@
     share_base: "{{ webapp_server_base }}"
     share_cwd: "{{ tomcat_cwd }}"
     share_user: "{{ tomcat_user }}"
+    share_shared_loader: "{% if share_shared_loader is defined %}{{ share_shared_loader }}{% else %}{{ webapp_server_base }}/shared/classes{% endif %}"
   when: webapp_path.results[1].stat.exists == True
 
 - name: Export Solr Specific variables
