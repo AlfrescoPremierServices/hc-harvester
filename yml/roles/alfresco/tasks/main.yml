@@ -15,6 +15,7 @@
     mode: 0644
   become: yes
   become_user: "{{ alfresco_user }}"
+  notify: Clean up Alfresco archives
 
 - name: Archive extension directory
   archive:
@@ -23,6 +24,7 @@
     mode: 0644
   become: yes
   become_user: "{{ alfresco_user }}"
+  notify: Clean up Alfresco archives
 
 - name: Fetch archived extension root
   fetch:
@@ -43,6 +45,7 @@
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
+  notify: Clean up Alfresco archives
 
 - name: Fetch jmxdump
   fetch:

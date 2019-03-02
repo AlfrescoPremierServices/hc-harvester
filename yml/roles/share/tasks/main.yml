@@ -6,6 +6,7 @@
     mode: 0644
   become: yes
   become_user: "{{ share_user }}"
+  notify: Clean up Share archives
 
 - name: Archive web-extension directory
   archive:
@@ -14,6 +15,7 @@
     mode: 0644
   become: yes
   become_user: "{{ share_user }}"
+  notify: Clean up Share archives
 
 - name: Fetch archived extension root
   fetch:
