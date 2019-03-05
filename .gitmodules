@@ -1,0 +1,3 @@
+[submodule "alfresco-db-queries"]
+	path = alfresco-db-queries
+	url = https://git.alfresco.com/premier-emea/alfresco-db-queries.git
