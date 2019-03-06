@@ -11,7 +11,7 @@
 - name: Archive Alfresco log files
   archive:
     dest: /tmp/alfresco-log.tar.gz
-    path: "{{ alfresco_cwd.stat.lnk_target }}/alfresco.log*"
+    path: "{{ alfresco_log_pattern }}"
     mode: 0644
   become: yes
   become_user: "{{ alfresco_user }}"

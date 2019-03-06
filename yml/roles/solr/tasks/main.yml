@@ -2,7 +2,7 @@
 - name: Archive Solr log files
   archive:
     dest: /tmp/solr-log.tar.gz
-    path: "{{ solr_cwd.stat.lnk_target }}/solr.log*"
+    path: "{{ solr_log_pattern }}"
     mode: 0644
   become: yes
   become_user: "{{ solr_user }}"

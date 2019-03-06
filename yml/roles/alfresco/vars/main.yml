@@ -1,0 +1,2 @@
+---
+alfresco_log_pattern: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default(alfresco_cwd.stat.lnk_target + '/alfresco.log*') }}"

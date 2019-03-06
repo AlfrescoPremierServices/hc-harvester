@@ -1,0 +1,3 @@
+# Set custom application log pattern
+#solr_log_pattern: /var/log/alfresco/solr.log*
+
