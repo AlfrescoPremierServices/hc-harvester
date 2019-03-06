@@ -86,6 +86,19 @@ and `host_vars/node2.domain.tld`
 webapp_server_port: 9393
 ```
 
+#### Custom shared loader
+
+Alfresco uses the tomcat shared loader feature to find additionnal resources (this is often refered to as the ${extension-root}.
+This tool expect to find the such resources in the ${TOMCAT_HOME}/shared/classes/ directory. If the Alfresco extension folder is not located there
+you need to manually set it as described bellow:
+
+```
+alfresco_shared_loader: /opt/alfresco/extension-root
+share_shared_loader: /opt/share/extension-root
+```
+
+you can set those variables in groups (see examples in the placeholders `group_vars/repo_tiers` & `group_vars/share_tiers`) or hosts variable files.
+
 > #TOCOMPLETE
 
 ### Execute

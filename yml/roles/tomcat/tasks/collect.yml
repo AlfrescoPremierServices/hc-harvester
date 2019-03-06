@@ -8,6 +8,7 @@
   become_user: "{{ item.user }}"
   with_items:
     - "{{ to_archive }}"
+  notify: Clean up Tomcat archives
 
 
 - name: Fetch archived log files

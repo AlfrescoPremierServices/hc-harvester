@@ -6,18 +6,20 @@
     mode: 0644
   become: yes
   become_user: "{{ share_user }}"
+  notify: Clean up Share archives
 
-- name: Archive extension directory
+- name: Archive web-extension directory
   archive:
-    dest: /tmp/alfresco-web-extension.tar.gz
-    path: "{{ share_base }}/shared/classes/alfresco/web-extension"
+    dest: /tmp/share-web-extension.tar.gz
+    path: "{{ share_shared_loader }}/alfresco/web-extension"
     mode: 0644
   become: yes
   become_user: "{{ share_user }}"
+  notify: Clean up Share archives
 
 - name: Fetch archived extension root
   fetch:
-    src: /tmp/alfresco-web-extension.tar.gz
+    src: /tmp/share-web-extension.tar.gz
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 

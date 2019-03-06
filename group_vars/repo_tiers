@@ -1,10 +1,7 @@
-# Manually define tomcat related variables if autodetect fails.
+# Manually define alfresco related variables if autodetect fails.
 # All variables defined bellow can be defined per server using ansible
 # host_vars or through subset of groups (like share_tiers or repo_tiers)
 
-# Uncomment to override detected port numbers
-#webapp_server_port: 8081
-
 # uncomment if your tomcat instance has a shared loader location wich doesn't
 # match ${CATALINA_BASE}/shared/classes
-#webapp_server_shared_loader: /opt/alfresco/extension-root
+#alfresco_shared_loader: /opt/alfresco/extension-root

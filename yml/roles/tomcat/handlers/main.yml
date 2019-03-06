@@ -1,0 +1,8 @@
+---
+ - name: Clean up Tomcat archives
+   file:
+     state: absent
+     path: "{{ item.archive }}"
+   with_items: 
+     - "{{ to_archive }}"
+

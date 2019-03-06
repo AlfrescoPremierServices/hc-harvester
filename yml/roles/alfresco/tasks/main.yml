@@ -15,14 +15,16 @@
     mode: 0644
   become: yes
   become_user: "{{ alfresco_user }}"
+  notify: Clean up Alfresco archives
 
 - name: Archive extension directory
   archive:
     dest: /tmp/alfresco-extension.tar.gz
-    path: "{{ alfresco_base }}/shared/classes/alfresco/extension"
+    path: "{{ alfresco_shared_loader }}/alfresco/extension"
     mode: 0644
   become: yes
   become_user: "{{ alfresco_user }}"
+  notify: Clean up Alfresco archives
 
 - name: Fetch archived extension root
   fetch:
@@ -43,6 +45,7 @@
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
+  notify: Clean up Alfresco archives
 
 - name: Fetch jmxdump
   fetch:

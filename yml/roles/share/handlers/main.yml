@@ -1,0 +1,9 @@
+---
+ - name: Clean up Share archives
+   file:
+     state: absent
+     path: "/tmp/share-{{ item }}.tar.gz"
+   with_items:
+     - 'log'
+     - 'web-extension'
+
