@@ -2,6 +2,8 @@ catalina_base: "{{ outer_loop | regex_replace('.*\ -Dcatalina\\.base=(.*?)(\\s+\
 catalina_home: "{{ outer_loop | regex_replace('.*\ -Dcatalina\\.home=(.*?)(\\s+\\-.*|\\s?(org\\.apache\\.catalina\\.startup\\.Bootstrap\ start)?$)', '\\1') }}"                                                                             
 catalina_tmp: "{{ outer_loop | regex_replace('.*\ -Djava\\.io\\.tmpdir=(.*?)(\\s+\\-.*|\\s?(org\\.apache\\.catalina\\.startup\\.Bootstrap\ start)?$)' ,'\\1') }}"                                                                           
 gc_log_pattern: "{{ outer_loop | regex_replace('.*\ -Xloggc:(.*?)(\\s+\\-.*|\\s?(org\\.apache\\.catalina\\.startup\\.Bootstrap\ start)?$)' ,'\\1') }}"                                                                                      
-tomcat_pid: "{{ outer_loop | regex_replace('^\\s*([0-9]+) *(.*?) .*$', '\\1') }}"
-tomcat_user: "{{ outer_loop | regex_replace('^\\s*([0-9]+) *(.*?) .*$', '\\2') }}"
+ps_tomcat_trimed: "{{ outer_loop | trim }}"
+tomcat_pid: "{{ ps_tomcat_trimed.split(' ')[0] }}"
+tomcat_user: "{{ ps_tomcat_trimed.split(' ')[1] }}"
+java_bin: "{{ ps_tomcat_trimed.split(' ')[2] }}"
 
