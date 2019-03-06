@@ -5,3 +5,6 @@
 # uncomment if your tomcat instance has a shared loader location wich doesn't
 # match ${CATALINA_BASE}/shared/classes
 #alfresco_shared_loader: /opt/alfresco/extension-root
+
+# Set custom application log pattern
+#alfresco_log_pattern: /var/log/alfresco/alfresco.log*

@@ -1,0 +1,2 @@
+---
+share_log_pattern: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default(share_cwd.stat.lnk_target + '/share.log*') }}"

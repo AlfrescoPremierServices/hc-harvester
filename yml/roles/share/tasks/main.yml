@@ -2,7 +2,7 @@
 - name: Archive Share log files
   archive:
     dest: /tmp/share-log.tar.gz
-    path: "{{ share_cwd.stat.lnk_target }}/share.log*"
+    path: "{{ share_log_pattern }}"
     mode: 0644
   become: yes
   become_user: "{{ share_user }}"
