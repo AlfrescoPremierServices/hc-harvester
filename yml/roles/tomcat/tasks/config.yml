@@ -67,6 +67,7 @@
     alfresco_base: "{{ webapp_server_base }}"
     alfresco_cwd: "{{ tomcat_cwd }}"
     alfresco_user: "{{ tomcat_user }}"
+    alfresco_java: "{{ java_bin }}"
   when: webapp_path.results[0].stat.exists == True
 
 - name: Export Share Specific variables
@@ -75,6 +76,7 @@
     share_base: "{{ webapp_server_base }}"
     share_cwd: "{{ tomcat_cwd }}"
     share_user: "{{ tomcat_user }}"
+    share_java: "{{ java_bin }}"
   when: webapp_path.results[1].stat.exists == True
 
 - name: Export Solr Specific variables
@@ -83,6 +85,7 @@
     solr_base: "{{ webapp_server_base }}"
     solr_cwd: "{{ tomcat_cwd }}"
     solr_user: "{{ tomcat_user }}"
+    solr_java: "{{ java_bin }}"
   when: webapp_path.results[2].stat.exists == True
 
 - name: build file list
