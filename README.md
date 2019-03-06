@@ -85,6 +85,7 @@ and `host_vars/node2.domain.tld`
 ```
 webapp_server_port: 9393
 ```
+
 #### Custom shared loader
 
 Alfresco uses the tomcat shared loader feature to find additionnal resources (this is often refered to as the ${extension-root}.
