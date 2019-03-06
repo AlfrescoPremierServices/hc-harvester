@@ -43,6 +43,14 @@ By default this password is set to "alfresco". ***First make sure to change that
 $ ansible-vault rekey yml/roles/alfresco/vars/secrets.yml
 ```
 
+You can then edit the vault file using the command bellow and the previously provided password:
+
+```
+$ ansible-vault edit yml/roles/alfresco/vars/secrets.yml
+```
+
+Fill in the placeholder variable with the Alfresco admin and database usernames and passwords.
+
 #### Provide specific configuration:
 
 hc-harvester tries to guess most of the configuration so you don't spend time on trying to fill-in some configuration file. But in some cases it may not be as clever as you'd expect and it's better to just use statically defined variables. Using hosts and groups variables can be a good solution. Here are the variables that can be overridden:
@@ -90,10 +98,20 @@ webapp_server_port: 9393
 
 ### Execute
 
-As stated in the pre-requisite, make sure you can login to your hosts using ssh for Linux boxes before trying to run.
+As stated in the pre-requisite, make sure you can login to your hosts using ssh for Linux boxes before trying to play.
 The recommandation is to configure your local ssh/config file so you can login to the machine in a non-interactive maner with the appropriate user (please refer to ssh documentation).
-To start the playbook simply run:
 
+Once you've prepared your inventory file and provided necessary informations (lie passwords and maybe others), you'll need to initialize the tool:
+
+```
+$ git submodule init
+$ git submodule update
+$ cd alfresco-db-queries && mvn package
+$ cd -
+```
+
+You only need to do this once (unless you update the alfresco-db-queries tool.
+You can now start the play by running:
 ```
 $ ansible-playbook -i inventory hc.yml -K --ask-vault-pass
 ```
