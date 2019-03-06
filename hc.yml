@@ -2,4 +2,5 @@
 - import_playbook: yml/harvester.yml
 - import_playbook: yml/all.yml
 - import_playbook: yml/webapp_servers.yml
+- import_playbook: yml/alfresco-db-queries.yml
 

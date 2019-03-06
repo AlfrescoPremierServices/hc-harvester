@@ -1,0 +1,22 @@
+# Alfresco tool to query the DB needs some variables to be set
+alfresco_db_queries_port: 8888
+
+# DB properties
+db_flavor: postgres
+db_driver_class: org.postgresql.Driver
+# DB URL as specified in alfresco-global.properties
+db_url: jdbc:postgresql://localhost/alfresco
+# DB username & password must be configured using
+# ansible-vault in yml/roles/alfresco/vars/secrets.yml
+
+# Solr properties
+alfresco_solr_filterCache_size: 256
+alfresco_solr_queryResultCache_size: 1024
+alfresco_solr_authorityCache_size: 128
+alfresco_solr_pathCache_size: 256
+
+archive_solr_filterCache_size: 256
+archive_solr_queryResultCache_size: 1024
+archive_solr_authorityCache_size: 128
+archive_solr_pathCache_size: 256
+
