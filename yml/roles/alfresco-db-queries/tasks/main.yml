@@ -1,0 +1,37 @@
+---
+- name: Create temp dir
+  file:
+    state: directory
+    path: "{{ hc_tmp }}"
+
+- name: Send Alfresco DB queries tool
+  copy:
+    src: ../../../../alfresco-db-queries/target/alfresco-db-0.0.1-SNAPSHOT.jar
+    dest: "{{ hc_tmp }}"
+
+- name: Send config and scripts files
+  template:
+    src: "{{ item.file }}"
+    dest: "{{ hc_tmp }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - { file: application.properties, mode: '644' }
+    - { file: alfresco-db-queries.sh, mode: '755' }
+
+- name: Run the DB queries tool
+  command: ./alfresco-db-queries.sh chdir={{ hc_tmp }}
+  async: 900
+  register: alfdbq_run
+  notify: Destroy DB queries tool process
+
+- name: Generate DB queries report
+  uri:
+    creates: "{{ hc_tmp }}/acs-db-report.csv"
+    url: http://localhost:{{ alfresco_db_queries_port }}/report
+
+- name: Fetch DB queries report
+  fetch:
+    src: "{{ hc_tmp }}/acs-db-report.csv"
+    dest: ../assets/
+    flat: yes
+

@@ -1,15 +1,15 @@
 ---
 - name: Archive Solr log files
   archive:
-    dest: /tmp/solr-log.tar.gz
     path: "{{ solr_log_pattern }}"
+    dest: "{{ hc_tmp }}/solr-log.tar.gz"
     mode: 0644
   become: yes
   become_user: "{{ solr_user }}"
 
 - name: Fetch archived log files
   fetch:
-    src: /tmp/solr-log.tar.gz
+    src: "{{ hc_tmp }}/solr-log.tar.gz"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 

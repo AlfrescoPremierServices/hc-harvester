@@ -1,0 +1,5 @@
+---
+- hosts: "{{ groups['repo_tiers'][0] }}"
+  roles:
+    - role: alfresco-db-queries
+
