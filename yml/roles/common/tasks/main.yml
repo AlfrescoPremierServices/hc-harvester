@@ -6,3 +6,9 @@
     src: system.csv
     newline_sequence: \r\n
 
+- name: Initialize temp directory
+  file:
+    state: directory
+    path: "{{hc_tmp }}"
+    mode: 0777
+ 

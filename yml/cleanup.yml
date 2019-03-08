@@ -1,0 +1,11 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - name: Clean up Healthcheck folder
+      file:
+        path: "{{ hc_tmp }}"
+        state: absent
+      tags:
+        - cleanup
+

@@ -1,7 +1,10 @@
 ---
-# solr_version Must be one of 1, 4. Alfresco Search Service using Solr6 is not yet supported.
-solr_version: 4
-solr_context: "{% if solr_version == 4 %}solr4{% else %}solr{% endif %}"
+# temp location where everything will be archived before fetching
+hc_tmp: /tmp/hc
+
+# define the applications context as defined in tomcat.
+# Do not take into account reverse proxies
 alfresco_context: 'alfresco'
 share_context: 'share'
+solr_context: 'solr4'
 

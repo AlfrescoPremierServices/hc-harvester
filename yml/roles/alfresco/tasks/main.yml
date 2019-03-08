@@ -10,7 +10,7 @@
 
 - name: Archive Alfresco log files
   archive:
-    dest: /tmp/alfresco-log.tar.gz
+    dest: "{{ hc_tmp }}/alfresco-log.tar.gz"
     path: "{{ alfresco_cwd.stat.lnk_target }}/alfresco.log*"
     mode: 0644
   become: yes
@@ -18,7 +18,7 @@
 
 - name: Archive extension directory
   archive:
-    dest: /tmp/alfresco-extension.tar.gz
+    dest: "{{ hc_tmp }}/alfresco-extension.tar.gz"
     path: "{{ alfresco_base }}/shared/classes/alfresco/extension"
     mode: 0644
   become: yes
@@ -26,27 +26,27 @@
 
 - name: Fetch archived extension root
   fetch:
-    src: /tmp/alfresco-extension.tar.gz
+    src: "{{ hc_tmp }}/alfresco-extension.tar.gz"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 
 - name: Fetch archived log files
   fetch:
-    src: /tmp/alfresco-log.tar.gz
+    src: "{{ hc_tmp }}/alfresco-log.tar.gz"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 
 - name: Generate Alfresco JMX dump
   get_url: 
     url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/admin/jmxdump
-    dest: /tmp/jmxdump-{{ inventory_hostname }}.zip
+    dest: "{{ hc_tmp }}/jmxdump-{{ inventory_hostname }}.zip"
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
 
 - name: Fetch jmxdump
   fetch:
-    src: /tmp/jmxdump-{{ inventory_hostname }}.zip
+    src: "{{ hc_tmp }}/jmxdump-{{ inventory_hostname }}.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 

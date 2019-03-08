@@ -1,7 +1,7 @@
 ---
 - name: Archive Solr log files
   archive:
-    dest: /tmp/solr-log.tar.gz
+    dest: "{{ hc_tmp }}/solr-log.tar.gz"
     path: "{{ solr_cwd.stat.lnk_target }}/solr.log*"
     mode: 0644
   become: yes
@@ -9,7 +9,7 @@
 
 - name: Fetch archived log files
   fetch:
-    src: /tmp/solr-log.tar.gz
+    src: "{{ hc_tmp }}/solr-log.tar.gz"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 
