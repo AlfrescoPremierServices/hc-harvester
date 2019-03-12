@@ -94,7 +94,7 @@
 - name: Save Alfresco process variables
   connection: local
   template:
-    dest: ../assets/{{ inventory_hostname }}/alfresco.proc
+    dest: ../assets/{{ inventory_hostname }}/alfresco-{{ tomcat_pid }}.proc
     src: proc_detail
     newline_sequence: \r\n
   when: webapp_path.results[0].stat.exists == True
@@ -102,7 +102,7 @@
 - name: Save Share process variables
   connection: local
   template:
-    dest: ../assets/{{ inventory_hostname }}/share.proc
+    dest: ../assets/{{ inventory_hostname }}/share-{{ tomcat_pid }}.proc
     src: proc_detail
     newline_sequence: \r\n
   when: webapp_path.results[1].stat.exists == True
@@ -110,7 +110,7 @@
 - name: Save Solr process variables
   connection: local
   template:
-    dest: ../assets/{{ inventory_hostname }}/solr.proc
+    dest: ../assets/{{ inventory_hostname }}/solr-{{ tomcat_pid }}.proc
     src: proc_detail
     newline_sequence: \r\n
   when: webapp_path.results[2].stat.exists == True
