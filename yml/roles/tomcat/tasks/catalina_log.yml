@@ -1,0 +1,31 @@
+---
+- name: Get Tomcat log directory config
+  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.directory' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}            
+  become: yes
+  become_user: "{{ tomcat_user }}"
+  register: catalina_log_dir_cfg
+
+- name: Get Tomcat log file prefix config
+  shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.prefix' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}               
+  become: yes
+  become_user: "{{ tomcat_user }}"
+  register: catalina_log_prefix_cfg
+
+- name: Get Tomcat log path components
+  include_vars: tomcat_log.yml
+
+- name: Find Tomcat log files
+  find:
+    paths: "{{ catalina_log_dir }}"
+    patterns: "{{ catalina_log_prefix }}*"
+    age: "{{ log_history }}"
+  register: found_catalina_logs
+
+- name: Build catalina dict
+  set_fact:
+    catalina_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_catalina_logs.files | map(attribute='path') | list }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}{{ outer_loop_key }}.log.tar.gz" } ]
+
+- name: Add catalina log files to the list of assets to archive
+  set_fact:
+    to_archive: "{{ to_archive }} + {{ catalina_dict }}"
+

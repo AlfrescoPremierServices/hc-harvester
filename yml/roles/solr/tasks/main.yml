@@ -1,7 +1,14 @@
 ---
+- name: Find Solr log files
+  find:
+    paths: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default(solr_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"                                                                                                         
+    patterns: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default('solr.log') | basename }}*"
+    age: "{{ log_history }}"
+  register: found_solr_logs
+
 - name: Archive Solr log files
   archive:
-    path: "{{ solr_log_pattern }}"
+    path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
     dest: "{{ hc_tmp }}/solr-log.tar.gz"
     mode: 0644
   become: yes

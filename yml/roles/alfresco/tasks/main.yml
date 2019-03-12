@@ -8,9 +8,16 @@
 - name: Read secrets from secured location
   include_vars: secrets.yml
 
+- name: Find Alfresco log files
+  find:
+    paths: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default(alfresco_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"
+    patterns: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default('alfresco.log') | basename }}*"
+    age: "{{ log_history }}"
+  register: found_alfresco_logs
+
 - name: Archive Alfresco log files
   archive:
-    path: "{{ alfresco_log_pattern }}"
+    path: "{{ found_alfresco_logs.files | map(attribute='path') | list }}"
     dest: "{{ hc_tmp }}/alfresco-log.tar.gz"
     mode: 0644
   become: yes
