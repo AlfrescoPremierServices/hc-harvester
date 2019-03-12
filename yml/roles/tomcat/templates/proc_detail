@@ -1,0 +1,18 @@
+PID {{ tomcat_pid }} running in {{ tomcat_cwd.stat.lnk_target }} as {{ tomcat_user }}:
+
+Command is (one argument per line):
+
+{{ tomcat_proc_cmdline.stdout }}
+
+Process runs in the following environment (one variable per line):
+
+{{ tomcat_proc_environ.stdout }}
+
+Process runs within th following limits:
+
+{{ tomcat_proc_limits.stdout }}
+
+Process memory status:
+
+{{ tomcat_proc_status.stdout }}
+

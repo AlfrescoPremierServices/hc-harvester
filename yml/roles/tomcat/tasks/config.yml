@@ -12,6 +12,32 @@
   become: yes
   become_user: "{{ tomcat_user }}"
 
+# Not using fetch module now as I want to be able to rename the file to the appropriate
+# webapp name (which I don't have at his point).
+- name:  Get Tomcat process file limits
+  command: cat /proc/{{ tomcat_pid }}/limits
+  register: tomcat_proc_limits 
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
+- name: Get Tomcat process command line
+  shell: cat -v /proc/{{ tomcat_pid }}/cmdline | sed 's/\^@/\n /g'
+  register: tomcat_proc_cmdline
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
+- name: Get Tomcat process Environment
+  shell: cat -v /proc/{{ tomcat_pid }}/environ | sed 's/\^@/\n/g'
+  register: tomcat_proc_environ
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
+- name: Get Tomcat process status
+  command: cat /proc/{{ tomcat_pid }}/status
+  register: tomcat_proc_status
+  become: yes
+  become_user: "{{ tomcat_user }}"
+
 - name: Read Tomcat config file
   xml:
     path: "{{ catalina_base }}/conf/server.xml"
@@ -63,6 +89,30 @@
     solr_cwd: "{{ tomcat_cwd }}"
     solr_user: "{{ tomcat_user }}"
     solr_java: "{{ java_bin }}"
+  when: webapp_path.results[2].stat.exists == True
+
+- name: Save Alfresco process variables
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/alfresco.proc
+    src: proc_detail
+    newline_sequence: \r\n
+  when: webapp_path.results[0].stat.exists == True
+
+- name: Save Share process variables
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/share.proc
+    src: proc_detail
+    newline_sequence: \r\n
+  when: webapp_path.results[1].stat.exists == True
+
+- name: Save Solr process variables
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/solr.proc
+    src: proc_detail
+    newline_sequence: \r\n
   when: webapp_path.results[2].stat.exists == True
 
 - include: catalina_log.yml
