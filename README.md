@@ -50,6 +50,48 @@ $ ansible-vault edit yml/roles/alfresco/vars/secrets.yml
 
 Fill in the placeholder variable with the Alfresco admin and database usernames and passwords.
 
+#### Certificates
+
+In order to connect to Solr and generate reports it is necessary to authenticate using SSL client certificate.
+This certificate and its key can be specified in `group_vars/index_tiers` using:
+
+```
+solr_client_cert: somecert.crt
+solr_client_key: somekey.key
+```
+
+> Such keys must be located in `yml/roles/solr/files`.
+
+This playbook contains the default client certificate and key which were disrtibuted as part of Alfresco 4.x and 5.x (for Solr 1.4 & Solr 4).
+
+> If you use default certificates you don't need to do anything here but take a look at the security concerns bellow.  
+Running the playbook on modern distribution of Linux, you may encounter errors like:
+
+```
+140AB18F:SSL routines:SSL_CTX_use_certificate:ee key too small
+```
+
+> This is because your Linux distribution prevent you from using this client certificate (Distros shipping OpenSSL 1.1.1a-pre9 and beyond).  
+This client certificate is now very old and uses key length which are considered weak.  
+You should really consider using certificates from your own PKI instead!
+
+> If you still need to use that certificate on modern Linux, you will need to lessen the security of the distribution. For example on Debian-like systems:  
+[https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1](https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1)
+
+If use your own PKI you'll need to provide the client certificate and key in unencrypted PEM format.
+Conversion can be done using openssl:
+
+```
+$ openssl pkcs12 -in yml/roles/solr/files/mypkicert.p12 -nokeys -clcerts -out yml/roles/solr/files/mypkicert.crt
+$ openssl pkcs12 -in yml/roles/solr/files/mypkicert.p12 -nocerts -nodes -out yml/roles/solr/files/mypkicert.key
+```
+
+You can also use a single file for both certificate and key and only specify `solr_client_cert`:
+
+```
+$ openssl pkcs12 -in mypkicert.p12 -clcerts -nodes -out mypkicert.pem
+```
+
 #### Provide specific configuration:
 
 hc-harvester tries to guess most of the configuration so you don't spend time on trying to fill-in some configuration file. But in some cases it may not be as clever as you'd expect and it's better to just use statically defined variables. Using hosts and groups variables can be a good solution. Here are the variables that can be overridden:
@@ -59,17 +101,18 @@ hc-harvester tries to guess most of the configuration so you don't spend time on
 It is possible to configure Alfresco Content Service, Share or even Solr to use differents tomcat contexts. If so you can specify them in the respective group variable files `group_vars/all`:
 
 ```
-solr_version: 4
 solr_context: 'mysearch'
 alfresco_context: 'myecm'
 share_context: 'mycollab'
 ```
-#### Disabling Tomcat port autodetection (Specifying tomcat port)
+#### Disabling autodetection
+
+##### Tomcat port (Specifying tomcat port)
 
 The playbook normally guess the port tomcat is running on automatically. If this process fails for any reason, it is still possible to specify the port manually.
 There are 2 wayd of doing so.
 
-##### All tomcat are using the same port
+###### All tomcat are using the same port
 
 You can then add the variable bellow in the `tomcat_servers` group variable file `groups_vars/tomcat_servers`
 
@@ -77,7 +120,7 @@ You can then add the variable bellow in the `tomcat_servers` group variable file
 webapp_server_port: 7979
 ```
 
-##### Tomcat servers are using different ports
+###### Tomcat servers are using different ports
 
 You'll then have to specify the tomcat port for each host using hosts variables. For example, for the hosts `node1.domain.tld` & `node2.domain.tld`, you would have
 
@@ -91,6 +134,14 @@ and `host_vars/node2.domain.tld`
 
 ```
 webapp_server_port: 9393
+```
+
+##### Solr/home folder
+
+Solr home directory autodetection and overriding are very similar. For Solr home directory, you can specify (e.g in `group_vars/index_tiers`:
+
+```
+solr_home: /some/folder/
 ```
 
 #### Custom shared loader
