@@ -20,27 +20,52 @@
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 
-#- name: Get Solr config
-#  xml:
-#    path: "{{ catalina_base }}/conf/server.xml"
-#    xpath: /Server/Service/Connector[@protocol='HTTP/1.1']
-#    content: attribute
-#    attribute: port
-#  register: tomcat_connector
-#  become: yes
-#  become_user: "{{ tomcat_user }}"
-#
-#- name: Archive Cores config directory
-#  archive:
-#    dest: /tmp/solr-cores-cfg.tar.gz
-#    path: "{{ alfresco_base }}/shared/classes/alfresco/web-extension"
-#    mode: 0644
-#  become: yes
-#  become_user: "{{ solr_user }}"
-#
-#- name: Fetch archived Solr config
-#  fetch:
-#    src: /tmp/solr-cores-cfg.tar.gz
-#    dest: ../assets/{{ inventory_hostname }}/conf/
-#    flat: yes
+- name: Get Solr home
+  xml:
+    path: "{{ solr_base }}/conf/Catalina/localhost/{{ solr_context | replace('/','#') }}.xml"
+    xpath: /Context/Environment[@name='solr/home']
+    content: attribute
+    attribute: value
+  register: solr_home_attr
+  become: yes
+  become_user: "{{ solr_user }}"
+  when: hostvars[inventory_hostname]['solr_home'] is undefined
+
+- name: Archive Solr config
+  archive:
+    dest: "{{ hc_tmp }}/solr-cores-cfg.tar.gz"
+    path:
+      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/workspace-SpacesStore/conf/"
+      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/archive-SpacesStore/conf/"
+    mode: 0644
+  become: yes
+  become_user: "{{ solr_user }}"
+
+- name: Fetch archived Solr config
+  fetch:
+    src: "{{ hc_tmp }}/solr-cores-cfg.tar.gz"
+    dest: ../assets/{{ inventory_hostname }}/conf/
+    flat: yes
+
+- name: Copy Solr client certificate and key
+  copy:
+    src:  "{{ item }}"
+    dest: "{{ hc_tmp }}/{{ item | dirname }}/"
+  with_items:
+    - "{{ solr_client_cert | default('solrclient_crt') }}"
+    - "{{ solr_client_key | default('solrclient_key') }}"
+
+- name: Generate Solr SUMMARY report
+  get_url: 
+    url: http://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml
+    dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    validate_certs: no
+
+- name: Fetch Solr SUMMARY report
+  fetch:
+    src: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
 
