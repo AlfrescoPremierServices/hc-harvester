@@ -1,0 +1,8 @@
+{% for target in ping_result.results %}
+PING results to {{ target.item }}
+{{ target.stdout_lines[-3] }}
+{{ target.stdout_lines[-2] }}
+{{ target.stdout_lines[-1] }}
+
+{% endfor %}
+

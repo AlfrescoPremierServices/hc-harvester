@@ -6,6 +6,19 @@
     src: system.csv
     newline_sequence: \r\n
 
+- name : Check network connectivity between hosts
+  command: ping {{ item }} -c 12
+  register: ping_result
+  with_items:
+    - "{{ groups['all'] | map('extract', hostvars, 'ansible_default_ipv4') | map(attribute='address') | list }}"
+  ignore_errors: yes
+
+- name: Reports network results
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/
+    src: ping.txt
+
 - name: Initialize temp directory
   file:
     state: directory
