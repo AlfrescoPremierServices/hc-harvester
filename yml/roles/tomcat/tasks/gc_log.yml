@@ -2,7 +2,7 @@
 - name: find GC log files
   find:
     paths: "{{ gc_log_dir }}"
-    patterns: "{{ gc_log_suffix }}"
+    patterns: "{{ gc_log_suffix }}*"
     age: "{{ log_history }}"
   register: found_gc_logs
 

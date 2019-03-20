@@ -2,5 +2,5 @@
 catalina_log_dir: "{{ catalina_log_dir_cfg.stdout | regex_replace('.*=\\s*(.*)', '\\1') | regex_replace('\\${catalina\\.base}', catalina_base) }}"
 catalina_log_prefix: "{{ catalina_log_prefix_cfg.stdout | regex_replace('.*=\\s*(.*)', '\\1') }}"
 gc_log_pattern_is_absolute: "{{ gc_log_pattern | regex_search('^/') }}"
-gc_log_suffix: "{{ gc_log_pattern | regex_replace('%[a-zA-z]','*') }}"
-gc_log_dir: "{% if gc_log_pattern_is_absolute == '/' %}{{ gc_log_suffix }}{% else %}{{ tomcat_cwd.stat.lnk_target }}{% endif %}"
+gc_log_suffix: "{{ gc_log_pattern | basename | regex_replace('%[a-zA-z]','*') }}"
+gc_log_dir: "{% if gc_log_pattern_is_absolute == '/' %}{{ gc_log_pattern | dirname }}{% else %}{{ tomcat_cwd.stat.lnk_target }}{% endif %}"
