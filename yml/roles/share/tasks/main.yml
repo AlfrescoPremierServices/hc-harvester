@@ -9,8 +9,9 @@
 - name: Archive Share log files
   archive:
     path: "{{ found_share_logs.files | map(attribute='path') | list }}"
-    dest: "{{ hc_tmp }}/share-log.tar.gz"
+    dest: "{{ hc_tmp }}/share-log.zip"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ share_user }}"
   notify: Clean up Share archives
@@ -18,21 +19,22 @@
 - name: Archive web-extension directory
   archive:
     path: "{{ share_shared_loader }}/alfresco/web-extension"
-    dest: "{{ hc_tmp }}/alfresco-web-extension.tar.gz"
+    dest: "{{ hc_tmp }}/alfresco-web-extension.zip"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ share_user }}"
   notify: Clean up Share archives
 
 - name: Fetch archived extension root
   fetch:
-    src: "{{ hc_tmp }}/alfresco-web-extension.tar.gz"
+    src: "{{ hc_tmp }}/alfresco-web-extension.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 
 - name: Fetch archived log files
   fetch:
-    src: "{{ hc_tmp }}/share-log.tar.gz"
+    src: "{{ hc_tmp }}/share-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 

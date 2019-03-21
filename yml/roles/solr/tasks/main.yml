@@ -9,14 +9,15 @@
 - name: Archive Solr log files
   archive:
     path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
-    dest: "{{ hc_tmp }}/solr-log.tar.gz"
+    dest: "{{ hc_tmp }}/solr-log.zip"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ solr_user }}"
 
 - name: Fetch archived log files
   fetch:
-    src: "{{ hc_tmp }}/solr-log.tar.gz"
+    src: "{{ hc_tmp }}/solr-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 
@@ -33,17 +34,18 @@
 
 - name: Archive Solr config
   archive:
-    dest: "{{ hc_tmp }}/solr-cores-cfg.tar.gz"
+    dest: "{{ hc_tmp }}/solr-cores-cfg.zip"
     path:
       - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/workspace-SpacesStore/conf/"
       - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/archive-SpacesStore/conf/"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ solr_user }}"
 
 - name: Fetch archived Solr config
   fetch:
-    src: "{{ hc_tmp }}/solr-cores-cfg.tar.gz"
+    src: "{{ hc_tmp }}/solr-cores-cfg.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 

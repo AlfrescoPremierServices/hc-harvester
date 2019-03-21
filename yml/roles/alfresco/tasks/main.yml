@@ -18,8 +18,9 @@
 - name: Archive Alfresco log files
   archive:
     path: "{{ found_alfresco_logs.files | map(attribute='path') | list }}"
-    dest: "{{ hc_tmp }}/alfresco-log.tar.gz"
+    dest: "{{ hc_tmp }}/alfresco-log.zip"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ alfresco_user }}"
   notify: Clean up Alfresco archives
@@ -27,21 +28,22 @@
 - name: Archive extension directory
   archive:
     path: "{{ alfresco_shared_loader }}/alfresco/extension"
-    dest: "{{ hc_tmp }}/alfresco-extension.tar.gz"
+    dest: "{{ hc_tmp }}/alfresco-extension.zip"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ alfresco_user }}"
   notify: Clean up Alfresco archives
 
 - name: Fetch archived extension root
   fetch:
-    src: "{{ hc_tmp }}/alfresco-extension.tar.gz"
+    src: "{{ hc_tmp }}/alfresco-extension.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 
 - name: Fetch archived log files
   fetch:
-    src: "{{ hc_tmp }}/alfresco-log.tar.gz"
+    src: "{{ hc_tmp }}/alfresco-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
 

@@ -4,6 +4,7 @@
     dest: "{{ item.archive }}"
     path: "{{ item.logfiles }}"
     mode: 0644
+    format: zip
   become: yes
   become_user: "{{ item.user }}"
   with_items:
