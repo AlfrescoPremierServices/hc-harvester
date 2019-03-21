@@ -23,7 +23,7 @@
 
 - name: Build catalina dict
   set_fact:
-    catalina_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_catalina_logs.files | map(attribute='path') | list }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}-{{ tomcat_pid }}.log.tar.gz" } ]
+    catalina_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_catalina_logs.files | map(attribute='path') | list }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}-{{ tomcat_pid }}.log.zip" } ]
 
 - name: Add catalina log files to the list of assets to archive
   set_fact:
