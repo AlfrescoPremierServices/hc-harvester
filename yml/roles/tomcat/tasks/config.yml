@@ -116,7 +116,8 @@
   when: webapp_path.results[2].stat.exists == True
 
 - include: catalina_log.yml
+  when: catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
 
 - include: gc_log.yml
-  when: outer_loop.find('-Xloggc') != -1
+  when: outer_loop.find('-Xloggc') != -1 and catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
 
