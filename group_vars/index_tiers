@@ -1,4 +1,4 @@
-# Set custom application log pattern
+# Set custom application log pattern (use wildcard as neeeded)
 #solr_log_pattern: /var/log/alfresco/solr.log*
 
 # Set solr home directory if autodetection fails (e.g if python-lxml is not available)

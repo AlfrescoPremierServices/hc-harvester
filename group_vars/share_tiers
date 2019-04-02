@@ -6,5 +6,5 @@
 # match ${CATALINA_BASE}/shared/classes
 #share_shared_loader: /opt/share/extension-root
 
-# Set custom application log pattern
+# Set custom application log pattern (use wildcard as needed)
 # share_log_pattern: /var/log/alfresco/share.log*

@@ -2,7 +2,7 @@
 - name: Find Share log files
   find:
     paths: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default(share_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"
-    patterns: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default('share.log') | basename }}*"
+    patterns: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default('share.log*') | basename }}"
     age: "{{ log_history }}"
   register: found_share_logs
 
