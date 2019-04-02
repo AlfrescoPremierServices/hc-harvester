@@ -78,7 +78,7 @@ You should really consider using certificates from your own PKI instead!
 > If you still need to use that certificate on modern Linux, you will need to lessen the security of the distribution. For example on Debian-like systems:  
 [https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1](https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1)
 
-If use your own PKI you'll need to provide the client certificate and key in unencrypted PEM format.
+If use your own PKI or you have regenerated the Solr certificates (like recommanded by Alfresco), you'll need to provide the client certificate and key in unencrypted PEM format.
 Conversion can be done using openssl:
 
 ```
