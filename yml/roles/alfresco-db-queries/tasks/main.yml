@@ -24,9 +24,15 @@
   register: alfdbq_run
   notify: Destroy DB queries tool process
 
+- name: Wait for Alfresco-db-queries to be available on port {{ alfresco_db_queries_port }}
+  wait_for:
+    delay: 5
+    sleep: 3
+    connect_timeout: 3
+    port: "{{ alfresco_db_queries_port }}"
+
 - name: Generate DB queries report
   uri:
-    creates: "{{ hc_tmp }}/acs-db-report.csv"
     url: http://localhost:{{ alfresco_db_queries_port }}/report
 
 - name: Fetch DB queries report
