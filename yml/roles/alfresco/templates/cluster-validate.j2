@@ -1,0 +1,13 @@
+{% if cluster_check.json is defined %}
+{% if cluster_check.json.status == 'table' %}
+| | {{ cluster_check.json.nodeNames | join(' | ') }} |
+|-| {{ cluster_check.json.nodeNames | join(' | ') | regex_replace('[^\|]','-') }} |
+{% for node in cluster_check.json.nodeNames %}
+| {{ node }} | {{ cluster_check.json.tableData[loop.index - 1] | join(' | ') }}
+{% endfor %}
+{% else %}
+{{ cluster_check.json.message }}
+{% endif %}
+{% else %}
+An error occured when calling cluster validation
+{% endif %}

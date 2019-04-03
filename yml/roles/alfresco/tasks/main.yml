@@ -93,3 +93,5 @@
     dest: ../assets/{{ inventory_hostname }}/
     src: db_ping.txt
 
+- include: cluster.yml
+

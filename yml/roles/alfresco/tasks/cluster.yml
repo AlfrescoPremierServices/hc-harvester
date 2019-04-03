@@ -1,0 +1,21 @@
+---
+- name: Validate Cluster communication
+  uri:
+    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test
+    method: POST
+    force_basic_auth: yes
+    url_username: "{{ alfresco_admin_user }}"
+    url_password: "{{ alfresco_admin_password }}"
+  register: cluster_check
+
+- name: Save cluster validation results
+  template:
+    src: cluster-validate.j2
+    dest: "{{ hc_tmp }}/cluster-validate.md"
+
+- name: Fetch Cluster Validate results
+  fetch:
+    src: "{{ hc_tmp }}/cluster-validate.md"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+
