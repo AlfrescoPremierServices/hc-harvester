@@ -23,6 +23,7 @@
     format: zip
   become: yes
   become_user: "{{ alfresco_user }}"
+  when: found_alfresco_logs.matched > 0
   notify: Clean up Alfresco archives
 
 - name: Archive extension directory
@@ -46,6 +47,7 @@
     src: "{{ hc_tmp }}/alfresco-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
+  when: found_alfresco_logs.matched > 0
 
 - name: Generate Alfresco JMX dump
   get_url: 

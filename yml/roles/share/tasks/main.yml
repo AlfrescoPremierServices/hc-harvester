@@ -14,6 +14,7 @@
     format: zip
   become: yes
   become_user: "{{ share_user }}"
+  when: found_share_logs.matched > 0
   notify: Clean up Share archives
 
 - name: Archive web-extension directory
@@ -37,4 +38,5 @@
     src: "{{ hc_tmp }}/share-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
+  when: found_share_logs.matched > 0
 

@@ -14,12 +14,14 @@
     format: zip
   become: yes
   become_user: "{{ solr_user }}"
+  when: found_solr_logs.matched > 0
 
 - name: Fetch archived log files
   fetch:
     src: "{{ hc_tmp }}/solr-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
+  when: found_solr_logs.matched > 0
 
 - name: Get Solr home
   xml:
