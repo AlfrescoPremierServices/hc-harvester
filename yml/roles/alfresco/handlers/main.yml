@@ -1,10 +1,17 @@
 ---
- - name: Clean up Alfresco archives
-   file:
-     state: absent
-     path: /tmp/{{ item }}
-   with_items:
-     - alfresco-log.tar.gz
-     - alfresco-extension.tar.gz
-     - jmxdump-{{ inventory_hostname }}.zip
+- name: Clean up Alfresco archives
+  file:
+    state: absent
+    path: /tmp/{{ item }}
+  with_items:
+    - alfresco-log.tar.gz
+    - alfresco-extension.tar.gz
+    - jmxdump-{{ inventory_hostname }}.zip
+
+- name: Clean dd temp perf files (Repository)
+  file:
+    state: absent
+    path: "{{ contentstore_dir }}/.hc_tmp_dd_perf_file.raw"
+  become: yes
+  become_user: "{{ alfresco_user }}"
 

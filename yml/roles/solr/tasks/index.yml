@@ -1,0 +1,38 @@
+---
+- name: Get Solr index directory
+  connection: local
+  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/solr-cores-cfg.zip {% if solr_info.json.lucene['solr-spec-version'] | regex_search('[0-9]+') is version_compare(6,'lt') %}workspace-SpacesStore{% else %}alfresco{% endif %}/conf/solrcore.properties | awk -F= '/^\s*data\.dir\./{print $2}'
+  args:
+    warn: false
+  register: solr_data_dirs
+
+- name: Alfresco index core write performance
+  command: dd if=/dev/zero of={{ solr_data_dirs.stdout_lines | join ('/') }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
+  register: dd_write_fs
+  become: yes
+  become_user: "{{ solr_user }}"
+  with_items:
+    - nonblock
+    - nonblock,direct
+  notify: Clean dd temp perf files (Index)
+
+- name: Alfresco index core read performance
+  command: dd if={{ solr_data_dirs.stdout_lines | join ('/') }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
+  register: dd_read_fs
+  become: yes
+  become_user: "{{ solr_user }}"
+  with_items:
+    - nonblock
+    - nonblock,direct
+
+- name: Write repo performance results
+  template:
+    src: hdd_perf.j2
+    dest: "{{ hc_tmp }}/index_hdd_perf.md"
+
+- name: Fetch repo disks performance
+  fetch:
+    src: "{{ hc_tmp }}/index_hdd_perf.md"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+

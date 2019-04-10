@@ -49,51 +49,7 @@
     flat: yes
   when: found_alfresco_logs.matched > 0
 
-- name: Generate Alfresco JMX dump
-  get_url: 
-    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/admin/jmxdump
-    dest: "{{ hc_tmp }}/jmxdump-{{ inventory_hostname }}.zip"
-    force_basic_auth: yes
-    url_username: "{{ alfresco_admin_user }}"
-    url_password: "{{ alfresco_admin_password }}"
-  notify: Clean up Alfresco archives
-
-- name: Fetch jmxdump
-  fetch:
-    src: "{{ hc_tmp }}/jmxdump-{{ inventory_hostname }}.zip"
-    dest: ../assets/{{ inventory_hostname }}/conf/
-    flat: yes
-
-- name: Get DB variables
-  connection: local
-  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | awk '/^{{ item }}/{print $2}'
-  args:
-    warn: false
-  register: db_params
-  with_items:
-    - db.url
-    - db.driver
-    - db.name
-      #when: inventory_hostname == groups['repo_tiers'][0]
-
-- name: Set DB variables
-  set_fact:
-    db_url: "{{ db_params.results[0].stdout_lines[0] }}"
-    db_host: "{{ db_params.results[0].stdout_lines[0].split('/')[2].split(':')[0] }}"
-    db_name: "{{ db_params.results[2].stdout_lines[0] }}"
-    db_driver: "{{ db_params.results[1].stdout_lines[0] }}"
-    #when: inventory_hostname == groups['repo_tiers'][0]
-
-- name : Check network connectivity to database
-  command: ping {{ db_host }} -c 12
-  register: db_ping_result
-  ignore_errors: yes
-
-- name: Reports DB network results
-  connection: local
-  template:
-    dest: ../assets/{{ inventory_hostname }}/
-    src: db_ping.txt
+- include: repo.yml
 
 - include: cluster.yml
 

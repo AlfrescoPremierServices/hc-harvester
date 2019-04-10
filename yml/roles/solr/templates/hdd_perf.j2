@@ -1,0 +1,34 @@
+# Alfresco index core Disk performance: {{ solr_data_dirs.stdout_lines | join ('/') }}
+
+## Write performace
+
+### Non blocking IO
+
+$ {{ dd_write_fs.results[0].cmd | join(' ') }}
+{% for line in dd_write_fs.results[0].stderr_lines %}
+{{ line }}
+{% endfor %}
+
+### Cache disabled
+
+$ {{ dd_write_fs.results[1].cmd | join(' ') }}
+{% for line in dd_write_fs.results[1].stderr_lines %}
+{{ line }}
+{% endfor %}
+
+## Read performance
+
+### Non blocking IO
+
+$ {{ dd_read_fs.results[0].cmd | join(' ') }}
+{% for line in dd_read_fs.results[0].stderr_lines %}
+{{ line }}
+{% endfor %}
+
+### Cache disabled
+
+$ {{ dd_read_fs.results[1].cmd | join(' ') }}
+{% for line in dd_read_fs.results[1].stderr_lines %}
+{{ line }}
+{% endfor %}
+

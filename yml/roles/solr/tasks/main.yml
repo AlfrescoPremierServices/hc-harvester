@@ -1,7 +1,24 @@
 ---
+- name: Copy Solr client certificate and key
+  copy:
+    src:  "{{ item }}"
+    dest: "{{ hc_tmp }}/{{ item | dirname }}/"
+  with_items:
+    - "{{ solr_client_cert | default('solrclient_crt') }}"
+    - "{{ solr_client_key | default('solrclient_key') }}"
+
+- name: get Solr server info
+  uri:
+    url: http://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json
+    return_content: yes
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    validate_certs: no
+  register: solr_info
+
 - name: Find Solr log files
   find:
-    paths: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default(solr_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"                                                                                                         
+    paths: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default(solr_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"
     patterns: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default('solr.log*') | basename }}"
     age: "{{ log_history }}"
   register: found_solr_logs
@@ -51,14 +68,6 @@
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
 
-- name: Copy Solr client certificate and key
-  copy:
-    src:  "{{ item }}"
-    dest: "{{ hc_tmp }}/{{ item | dirname }}/"
-  with_items:
-    - "{{ solr_client_cert | default('solrclient_crt') }}"
-    - "{{ solr_client_key | default('solrclient_key') }}"
-
 - name: Generate Solr SUMMARY report
   get_url: 
     url: http://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml
@@ -73,3 +82,4 @@
     dest: ../assets/{{ inventory_hostname }}/
     flat: yes
 
+- include: index.yml
