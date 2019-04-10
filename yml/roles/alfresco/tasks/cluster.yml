@@ -6,6 +6,7 @@
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
   register: csrf_req
+  failed_when: csrf_req.status is undefined
 
 - name: Validate Cluster communication
   uri:
@@ -19,6 +20,7 @@
       Referer: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test
       Cookie: "{{ csrf_req.set_cookie | default('Dummy=nothingToSet') }}"
   register: cluster_check
+  when: csrf_req.status == 200
 
 - name: Save cluster validation results
   template:

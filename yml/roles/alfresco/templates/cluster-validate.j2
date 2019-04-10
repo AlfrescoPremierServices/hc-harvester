@@ -10,4 +10,6 @@
 {% endif %}
 {% else %}
 An error occured when calling cluster validation
+Getting CSRF token returned: {{ csrf_req.msg | default('No error could be retieved') }}
+Calling validation returned: {{ cluster_check.msg | default('No error could be retieved') }}
 {% endif %}
