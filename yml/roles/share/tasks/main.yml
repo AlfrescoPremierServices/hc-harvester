@@ -4,6 +4,8 @@
     paths: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default(share_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"
     patterns: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default('share.log*') | basename }}"
     age: "{{ log_history }}"
+  become: yes
+  become_user: "{{ share_user }}"
   register: found_share_logs
 
 - name: Archive Share log files

@@ -13,6 +13,8 @@
     paths: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default(alfresco_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"
     patterns: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default('alfresco.log*') | basename }}"
     age: "{{ log_history }}"
+  become: yes
+  become_user: "{{ alfresco_user }}"
   register: found_alfresco_logs
 
 - name: Archive Alfresco log files
