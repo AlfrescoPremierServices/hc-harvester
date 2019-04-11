@@ -57,8 +57,8 @@
   archive:
     dest: "{{ hc_tmp }}/solr-cores-cfg.zip"
     path:
-      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/workspace-SpacesStore/conf/"
-      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/archive-SpacesStore/conf/"
+      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{% if solr_home_attr.matches[0].Environment.value[0] != '/' %}{{ solr_cwd.stat.lnk_target }}/{% endif %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/workspace-SpacesStore/conf/"
+      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{% if solr_home_attr.matches[0].Environment.value[0] != '/' %}{{ solr_cwd.stat.lnk_target }}/{% endif %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/archive-SpacesStore/conf/"
     mode: 0644
     format: zip
   become: yes
