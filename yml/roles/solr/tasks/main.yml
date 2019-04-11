@@ -76,6 +76,7 @@
     dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
     client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
     validate_certs: no
 
 - name: Fetch Solr SUMMARY report

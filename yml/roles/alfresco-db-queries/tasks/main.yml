@@ -34,7 +34,7 @@
 - name: Generate DB queries report
   uri:
     url: http://localhost:{{ alfresco_db_queries_port }}/report
-    timeout: 900
+    timeout: "{{ db_queries_report_timeout }}"
 
 - name: Fetch DB queries report
   fetch:
