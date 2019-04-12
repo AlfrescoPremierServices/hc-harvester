@@ -1,11 +1,11 @@
 [repo_tiers]
-localhost
+172.20.0.1 ansible_port=4222
 
 [share_tiers]
-localhost
+172.20.0.1 ansible_port=4222
 
 [index_tiers]
-localhost
+172.20.0.1 ansible_port=4222
 
 [tomcat_servers:children]
 repo_tiers
