@@ -25,12 +25,12 @@
     - nonblock
     - nonblock,direct
 
-- name: Write repo performance results
+- name: Write index performance results
   template:
     src: hdd_perf.j2
     dest: "{{ hc_tmp }}/index_hdd_perf.md"
 
-- name: Fetch repo disks performance
+- name: Fetch index disks performance
   fetch:
     src: "{{ hc_tmp }}/index_hdd_perf.md"
     dest: ../assets/{{ inventory_hostname }}/
