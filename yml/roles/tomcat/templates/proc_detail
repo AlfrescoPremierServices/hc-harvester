@@ -1,4 +1,4 @@
-PID {{ tomcat_pid }} running in {% if tomcat_cwd.skipped == false %}{{ tomcat_cwd.stat.lnk_target }}{% else %}... (could not read process working directory),{% endif %} as {{ tomcat_user }}:
+PID {{ tomcat_pid }} running in {% if tomcat_cwd.skipped | default(false) == false %}{{ tomcat_cwd.stat.lnk_target }}{% else %}... (could not read process working directory),{% endif %} as {{ tomcat_user }}:
 
 Command is (one argument per line):
 
@@ -6,7 +6,8 @@ Command is (one argument per line):
 
 Process runs in the following environment (one variable per line):
 
-{% if tomcat_proc_environ.skipped == false %}{{ tomcat_proc_environ.stdout }}{% else %}'... (could not read process environement)'{% endif %}
+{% if tomcat_proc_environ.skipped | default(false) == false %}{{ tomcat_proc_environ.stdout }}{% else %}... (could not read process environement){% endif %}
+
 
 Process runs within th following limits:
 

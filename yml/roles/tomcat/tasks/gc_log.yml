@@ -4,7 +4,7 @@
     paths: "{{ gc_log_dir }}"
     patterns: "{{ gc_log_suffix }}*"
     age: "{{ log_history }}"
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ tomcat_user }}"
   register: found_gc_logs
 

@@ -19,7 +19,7 @@
     dest: ../assets/{{ inventory_hostname }}/
     src: ping.txt
 
-- name: Initialize temp directory
+- name: Initialize Healtchcheck temp directory
   file:
     state: directory
     path: "{{hc_tmp }}"

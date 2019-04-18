@@ -60,6 +60,8 @@
     follow: yes
   register: webapp_path
   ignore_errors: True
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ tomcat_user }}"
   loop:
     - "{{ alfresco_context }}"
     - "{{ share_context }}"
@@ -69,7 +71,7 @@
   set_fact:
     alfresco_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
     alfresco_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
-    alfresco_cwd: "{{ tomcat_cwd }}"
+    alfresco_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     alfresco_user: "{{ tomcat_user }}"
     alfresco_shared_loader: "{% if alfresco_shared_loader is defined %}{{ alfresco_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
     alfresco_java: "{{ java_bin }}"
@@ -79,7 +81,7 @@
   set_fact:
     share_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
     share_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
-    share_cwd: "{{ tomcat_cwd }}"
+    share_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     share_user: "{{ tomcat_user }}"
     share_shared_loader: "{% if share_shared_loader is defined %}{{ share_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
     share_java: "{{ java_bin }}"
@@ -89,7 +91,7 @@
   set_fact:
     solr_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
     solr_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
-    solr_cwd: "{{ tomcat_cwd }}"
+    solr_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     solr_user: "{{ tomcat_user }}"
     solr_java: "{{ java_bin }}"
   when: webapp_path.results[2].stat.exists == True
