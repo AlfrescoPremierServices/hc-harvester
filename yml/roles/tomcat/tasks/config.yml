@@ -2,6 +2,13 @@
 - name: Set process variables
   include_vars: tomcat_args.yml
 
+- name: Check Privileges
+  command: /bin/true
+  become: yes
+  become_user: "{{tomcat_user }}"
+  register: checked_privs
+  ignore_errors: yes
+
 - name: Get Tomcat working dir
   stat:
     path: /proc/{{ tomcat_pid }}/cwd
@@ -11,32 +18,28 @@
   register: tomcat_cwd
   become: yes
   become_user: "{{ tomcat_user }}"
+  when: checked_privs.failed == false
 
 # Not using fetch module now as I want to be able to rename the file to the appropriate
 # webapp name (which I don't have at his point).
 - name:  Get Tomcat process file limits
   command: cat /proc/{{ tomcat_pid }}/limits
   register: tomcat_proc_limits 
-  become: yes
-  become_user: "{{ tomcat_user }}"
 
 - name: Get Tomcat process command line
   shell: cat -v /proc/{{ tomcat_pid }}/cmdline | sed 's/\^@/\n /g'
   register: tomcat_proc_cmdline
-  become: yes
-  become_user: "{{ tomcat_user }}"
 
 - name: Get Tomcat process Environment
   shell: cat -v /proc/{{ tomcat_pid }}/environ | sed 's/\^@/\n/g'
   register: tomcat_proc_environ
   become: yes
   become_user: "{{ tomcat_user }}"
+  when: checked_privs.failed == false
 
 - name: Get Tomcat process status
   command: cat /proc/{{ tomcat_pid }}/status
   register: tomcat_proc_status
-  become: yes
-  become_user: "{{ tomcat_user }}"
 
 - name: Read Tomcat config file
   xml:
