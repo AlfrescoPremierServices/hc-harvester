@@ -1,0 +1,6 @@
+db_platforms:
+  postgres: postgresql
+  oracle: oracle
+  mariadb: mysql
+  mysql: mysql
+  sqlserver: microsoft
