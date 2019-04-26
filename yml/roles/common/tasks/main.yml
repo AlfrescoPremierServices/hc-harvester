@@ -1,4 +1,17 @@
 ---
+- name: Check root Privileges
+  command: /bin/true
+  become: yes
+  register: checked_root_privs
+  ignore_errors: yes
+
+- name: Re-Collect hardware facts as root
+  setup:
+    gather_subset: hardware
+    filter: ansible_mounts
+  become: yes
+  when : checked_root_privs.failed == false and ansible_mounts | length != ansible_mounts | map(attribute='size_total') | list | length
+
 - name: Get generic values for this system
   connection: local
   template:
