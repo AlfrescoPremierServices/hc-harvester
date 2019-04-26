@@ -1,5 +1,5 @@
 db_platforms:
-  postgres: postgresql
+  postgresql: postgres
   oracle: oracle
   mariadb: mysql
   mysql: mysql
