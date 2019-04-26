@@ -65,6 +65,7 @@
   args:
     warn: false
   register: s3_props
+  failed_when: s3_props.rc == 2
 
 - name: Content Store write performance
   command: dd if=/dev/zero of={{ contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0]) }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
