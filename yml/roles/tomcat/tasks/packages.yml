@@ -6,5 +6,5 @@
   become: yes
   with_items:
     - "{{ packages }}"
-  when: ( inventory_hostname in groups['index_tiers'] and solr_home is undefined ) or webapp_server_port is undefined
+  when: checked_root_privs.failed == false and (( inventory_hostname in groups['index_tiers'] and solr_home is undefined ) or webapp_server_port is undefined)
 
