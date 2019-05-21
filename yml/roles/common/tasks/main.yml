@@ -43,5 +43,5 @@
     src: sudosu-wrapper.sh
     dest: "{{hc_tmp }}/bin/"
     mode: 0755
-  when: ansible_become_exe is defined and ansible_become_exe == 'sudosuwrapper.sh'
+  when: ansible_become_exe is defined and ansible_become_exe == 'sudosu-wrapper.sh'
 
