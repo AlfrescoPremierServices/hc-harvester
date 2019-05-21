@@ -1,5 +1,7 @@
 ---
 - hosts: "{{ groups['repo_tiers'][0] }}"
+  environment:
+    PATH: "{{ lookup('env','PATH') }}:{{ hc_tmp }}/bin"
   roles:
     - role: alfresco-db-queries
 

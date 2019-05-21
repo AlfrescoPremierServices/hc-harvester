@@ -37,4 +37,11 @@
     state: directory
     path: "{{hc_tmp }}"
     mode: 0777
- 
+
+- name: Copy sudosu authentication wrapper
+  copy:
+    src: sudosu-wrapper.sh
+    dest: "{{hc_tmp }}/bin/"
+    mode: 0755
+  when: ansible_become_exe is defined and ansible_become_exe == 'sudosuwrapper.sh'
+
