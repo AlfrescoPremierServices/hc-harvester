@@ -4,7 +4,7 @@
     src: sudosu-wrapper.sh
     dest: "{{ hc_tmp }}/bin/"
     mode: 0755
-  when: ansible_become_exe is defined and ansible_become_exe == "{{ hc_tmp }}/bin/sudosu-wrapper.sh"
+  when: ansible_become_exe is defined and ansible_become_exe == hc_tmp + '/bin/sudosu-wrapper.sh'
 
 - name: Check root Privileges
   command: /bin/true
