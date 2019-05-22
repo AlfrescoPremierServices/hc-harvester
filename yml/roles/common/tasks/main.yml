@@ -1,4 +1,11 @@
 ---
+- name: Copy sudosu authentication wrapper
+  copy:
+    src: sudosu-wrapper.sh
+    dest: "{{ hc_tmp }}/bin/"
+    mode: 0755
+  when: ansible_become_exe is defined and ansible_become_exe == "{{ hc_tmp }}/bin/sudosu-wrapper.sh"
+
 - name: Check root Privileges
   command: /bin/true
   become: yes
@@ -35,13 +42,6 @@
 - name: Initialize Healtchcheck temp directory
   file:
     state: directory
-    path: "{{hc_tmp }}"
+    path: "{{ hc_tmp }}"
     mode: 0777
-
-- name: Copy sudosu authentication wrapper
-  copy:
-    src: sudosu-wrapper.sh
-    dest: "{{hc_tmp }}/bin/"
-    mode: 0755
-  when: ansible_become_exe is defined and ansible_become_exe == 'sudosu-wrapper.sh'
 
