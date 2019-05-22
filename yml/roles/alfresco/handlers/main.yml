@@ -4,8 +4,8 @@
     state: absent
     path: /tmp/{{ item }}
   with_items:
-    - alfresco-log.tar.gz
-    - alfresco-extension.tar.gz
+    - alfresco-log.zip
+    - alfresco-extension.zip
     - jmxdump-{{ inventory_hostname }}.zip
 
 - name: Clean dd temp perf files (Repository)
