@@ -44,13 +44,13 @@
 - name: Read Tomcat config file
   xml:
     path: "{{ catalina_base }}/conf/server.xml"
-    xpath: /Server/Service/Connector[@protocol='HTTP/1.1']
+    xpath: /Server/Service/Connector[contains('HTTP/1.1 org.apache.coyote.http11.Http11Protocol org.apache.coyote.http11.Http11NioProtocol org.apache.coyote.http11.Http11AprProtocol', @protocol)]
     content: attribute
     attribute: port
   register: tomcat_connector
   become: yes
   become_user: "{{ tomcat_user }}"
-  when: hostvars[inventory_hostname]['webapp_server_port'] is undefined
+  when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
@@ -69,7 +69,8 @@
 
 - name: Export Alfresco Specific variables
   set_fact:
-    alfresco_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
+    alfresco_port: "{% if tomcat_connector.skipped | default(false) == false and tomcat_connector.matches | length > 0 %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
+    alfresco_scheme: "{% if tomcat_connector.skipped | default(false) == false and tomcat_connector.matches | length > 0 and tomcat_connector.matches[0].Connector.SSLEnabled | default('false') == 'true' %}https{% else %}{{ hostvars[inventory_hostname]['webapp_server_scheme'] | default('http') }}{% endif %}"
     alfresco_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
     alfresco_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     alfresco_user: "{{ tomcat_user }}"
@@ -89,7 +90,8 @@
 
 - name: Export Solr Specific variables
   set_fact:
-    solr_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
+    solr_port: "{% if tomcat_connector.skipped | default(false) == false and tomcat_connector.matches | length > 0 %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
+    solr_scheme: "{% if tomcat_connector.skipped | default(false) == false and tomcat_connector.matches | length > 0 and tomcat_connector.matches[0].Connector.SSLEnabled | default(false) == 'true' %}https{% else %}{{ hostvars[inventory_hostname]['webapp_server_scheme'] | default('http') }}{% endif %}"
     solr_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
     solr_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     solr_user: "{{ tomcat_user }}"

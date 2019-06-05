@@ -1,12 +1,13 @@
 ---
 - name: Generate Alfresco JMX dump
   get_url: 
-    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/admin/jmxdump
+    url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/admin/jmxdump"
     dest: "{{ hc_tmp }}/jmxdump-{{ inventory_hostname }}.zip"
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
     timeout: "{{ jmxdump_timeout }}"
+    validate_certs: no
   notify: Clean up Alfresco archives
 
 - name: Fetch jmxdump

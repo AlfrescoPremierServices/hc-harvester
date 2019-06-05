@@ -9,7 +9,7 @@
 
 - name: get Solr server info
   uri:
-    url: http://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
     return_content: yes
     client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
@@ -74,7 +74,7 @@
 
 - name: Generate Solr SUMMARY report
   get_url: 
-    url: http://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml"
     dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
     client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"

@@ -1,23 +1,25 @@
 ---
 - name: Get Alfresco CSRF token
   uri:
-    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test
+    url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test"
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
+    validate_certs: no
   register: csrf_req
   failed_when: csrf_req.status is undefined
 
 - name: Validate Cluster communication
   uri:
-    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test
+    url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test"
     method: POST
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
+    validate_certs: no
     headers: 
       alf-csrftoken: "{{ csrf_req.cookies['alf-csrftoken'] | default('noTokenFound') | urldecode }}"
-      Referer: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test
+      Referer: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test"
       Cookie: "{{ csrf_req.set_cookie | default('Dummy=nothingToSet') }}"
   register: cluster_check
   when: csrf_req.status == 200

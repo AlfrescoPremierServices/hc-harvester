@@ -1,7 +1,8 @@
 ---
 - name: get server info
   uri:
-    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/server
+    url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/server"
+    validate_certs: no
     return_content: yes
   register: srv_info
 
