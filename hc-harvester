@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#  hc-harvester.py
+#  
+#  Copyright 2019 Alexandre Chapellon <alexandre.chapellon@alfresco.com>
+#  
+#  Wrapper script to the hc.yml Ansible playbook
+#  It will prompt the user for informations about the
+#  way the Alfresco platform is setup and start the
+#  playbook accordingly
+
+def main(args):
+	global consitent_login
+	while consitent_login == '' :
+		consitent_login = input('Are the credentials valid for every server? (True or False)\n')
+		
+	if (consitent_login == True):
+		global ssh_user
+		while ssh_user == '' :
+			ssh_user = raw_input('What SSH user are you loging in as?\n')
+			
+		global passwd_ssh_user
+		while type(passwd_ssh_user) != bool :
+			passwd_ssh_user = input('A password is needed when loging in via SSH? (True or False)\n')
+			
+		global passwd_sudo
+		while type(passwd_sudo) != bool :
+			passwd_sudo = input('A password is needed when using sudo? (True or False)\n')
+			
+		become_opts = ' -u ' + ssh_user
+		become_opts += ' -k' if passwd_ssh_user is True else ' '
+		become_opts += ' -K ' if passwd_sudo is True else ' '
+	else:
+		raw_input('All authentication parameters must be defined manually in the inventory file.\nSee /doc/user-permissions.md for details before running if unsure')
+		become_opts = ''
+	cmd = 'ansible-playbook --ask-vault-pass -i inventory' + become_opts +  ' hc.yml'
+	print 'Running ' + cmd
+	os.system(cmd)
+
+if __name__ == '__main__':
+    import sys
+    import os
+    consitent_login=''
+    ssh_user=''
+    passwd_ssh_user=''
+    passwd_sudo=''
+    sys.exit(main(sys.argv))
