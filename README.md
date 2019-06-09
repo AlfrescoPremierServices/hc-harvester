@@ -69,15 +69,14 @@ $ mvn install:install-file -Dfile=./lib/ojdbc6.jar -DgroupId=com.oracle -Dartifa
 $ cd -
 ```
 
-You only need to do this once (unless you update the alfresco-db-queries tool.
+You only need to do this once (unless you update the alfresco-db-queries tool).
 You can now start the play by running:
+
 ```
-$ ansible-playbook -i inventory hc.yml -K --ask-vault-pass
+$ ./hc-harvester
 ```
 
-You will be prompted for both:
- - the Vault password
- - the sudo password in order to get administrative privileges on the remote hosts.
+You will be asked some easy questions you need to answer - use `True` or `False` when needed (case matters!). You may also be prompted for passwords.
 
 ## TODO
 
