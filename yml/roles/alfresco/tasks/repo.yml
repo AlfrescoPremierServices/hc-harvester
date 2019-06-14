@@ -26,11 +26,14 @@
     - '^URL\s+jdbc'
     - db.driver
 
-- name: Set DB variables
+- name: Set DB Driver
+  set_fact:
+    db_driver: "{{ db_params.results[1].stdout_lines[0] }}"
+
+- name: Set DB Connection
   set_fact:
     db_url: "{{ db_params.results[0].stdout_lines[0] }}"
-    db_host: "{{ db_params.results[0].stdout_lines[0].split('/')[2].split(':')[0] }}"
-    db_driver: "{{ db_params.results[1].stdout_lines[0] }}"
+    db_host: "{{ db_params.results[0].stdout_lines[0].split('@')[1].split(':')[0] if db_driver == 'oracle.jdbc.OracleDriver' else db_params.results[0].stdout_lines[0].split('/')[2].split(':')[0] }}"
 
 - name : Check network connectivity to database
   command: ping {{ db_host }} -c 12
