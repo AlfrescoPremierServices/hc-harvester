@@ -65,6 +65,16 @@ alfresco_shared_loader=/opt/alfresco/extension-root
 share_shared_loader:/opt/share/extension-root
 ```
 
+## Custom contentstore location
+
+In case you have specified a custom contentstore location hc-harvester may not be able to retrieve it. If that location is set by modifying dir.root property and/or modifying dir.contenstore property (without involving custom properties in the value of that properties), then detection should work. But if you use custom property like for instance `dir.contentstore=${filer.mountpoint.root}/contentstore`, then we can't automatically detect that and you need to manually specify that folder using the `contentstore_directory` variable as shown bellow:
+
+```
+[repo_tiers]
+alfresco1.domain.tld contentstore_directory=/filer/data/contentstore
+
+```
+
 ## Disabling Autodetection
 
 hc-harvester normally autodetects some parameters of you architecture. If this process fails for any reason, it is still possible to manually specify the parameters that would normally be auto-detected.
