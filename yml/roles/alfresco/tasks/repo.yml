@@ -69,7 +69,7 @@
   failed_when: s3_props.rc == 2
 
 - name: Content Store write performance
-  command: dd if=/dev/zero of={{ contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0]) }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
+  command: dd if=/dev/zero of={{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
   register: dd_write_fs
   become: yes
   become_user: "{{ alfresco_user }}"
@@ -80,7 +80,7 @@
   notify: Clean dd temp perf files (Repository)
 
 - name: Content Store read performance
-  command: dd if={{ contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0]) }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
+  command: dd if={{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
   register: dd_read_fs
   become: yes
   become_user: "{{ alfresco_user }}"
