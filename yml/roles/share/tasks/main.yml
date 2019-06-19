@@ -1,10 +1,10 @@
 ---
 - name: Find Share log files
   find:
-    paths: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default(share_cwd.stat.lnk_target + '/placeholder' ) | dirname }}"
+    paths: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default(share_cwd + '/placeholder' ) | dirname }}"
     patterns: "{{ hostvars[inventory_hostname]['share_log_pattern'] | default('share.log*') | basename }}"
     age: "{{ log_history }}"
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ share_user }}"
   register: found_share_logs
 
@@ -14,7 +14,7 @@
     dest: "{{ hc_tmp }}/share-log.zip"
     mode: 0644
     format: zip
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ share_user }}"
   when: found_share_logs.matched > 0
   notify: Clean up Share archives
@@ -25,7 +25,7 @@
     dest: "{{ hc_tmp }}/alfresco-web-extension.zip"
     mode: 0644
     format: zip
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ share_user }}"
   notify: Clean up Share archives
 

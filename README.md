@@ -50,6 +50,25 @@ $ ansible-vault edit yml/roles/alfresco/vars/secrets.yml
 
 Fill in the placeholder variable with the Alfresco admin and database usernames and passwords.
 
+SSH password and sudo password will be prompted when starting the play. If you only have necessary privileges through using `sudo su - user command` you will have to use a special wrapper.
+This is typically the case when the first command bellow fails and the second works:
+
+```
+$ sudo -u alfresco true && echo OK
+Sorry, user alfresco is not allowed to execute « /bin/true » as alfresco on localhost
+$ sudo su - alfresco
+$ true && echo OK 
+OK
+```
+
+In this case just amend your inventory file as follow (adding the `ansible_become_exe` variable for each host where this is needed):
+
+```
+...
+hostname ansible_become_exe=sudosu-wrapper.sh
+...
+```
+
 #### Certificates
 
 In order to connect to Solr and generate reports it is necessary to authenticate using SSL client certificate.
@@ -168,7 +187,8 @@ Once you've prepared your inventory file and provided necessary informations (li
 ```
 $ git submodule init
 $ git submodule update
-$ cd alfresco-db-queries && mvn package
+$ cd alfresco-db-queries
+$ mvn install:install-file -Dfile=./lib/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.3 -Dpackaging=jar && mvn package
 $ cd -
 ```
 

@@ -2,8 +2,9 @@
 # All variables defined bellow can be defined per server using ansible
 # host_vars or through subset of groups (like share_tiers or repo_tiers)
 
-# Uncomment to override detected port numbers
+# Uncomment to override detected port numbers and scheme
 #webapp_server_port: 8081
+#webapp_server_scheme: http
 
 # uncomment if your tomcat instance has a shared loader location wich doesn't
 # match ${CATALINA_BASE}/shared/classes

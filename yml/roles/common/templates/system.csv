@@ -10,7 +10,7 @@
 ,,,,,
 ,DRIVE,MOUNTPOINT,FS TYPE,SIZE,FREE
 {% for item in ansible_mounts %}
-,{{ item['device'] }},{{ item['mount'] }},{{ item['fstype'] }},{{ item['size_total'] }},{{ item['size_available'] }}
+,{{ item['device'] }},{{ item['mount'] }},{{ item['fstype'] }},{{ item['size_total'] | default('unavailable') }},{{ item['size_available'] | default('unavailable') }}
 {% endfor %}
 ,,,,,
 ,System setting,status,,,
