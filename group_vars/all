@@ -5,9 +5,5 @@ hc_tmp: /tmp/hc
 # Set the log history to archive and fetch (default 1 week)
 log_history: "-1w"
 
-# define the applications context as defined in tomcat.
-# Do not take into account reverse proxies
-alfresco_context: 'alfresco'
-share_context: 'share'
-solr_context: 'solr4'
-
+# Use authentication wrapper to handle `sudo su` only configs
+ansible_become_exe: "{{ hc_tmp }}/bin/sudosu-wrapper.sh"
