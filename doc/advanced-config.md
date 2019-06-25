@@ -4,7 +4,7 @@ hc-harvester tries to guess most of the configuration so you don't spend time on
 better to provide configuration manually.
 Using hosts and groups variables is an esay way to provide manual configuration. There are multiple places where this variable can be set. For consistancy reason, we'll use the inventory file (check [Ansible variable documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html) for more details).
 
-#### Certificates
+## Certificates
 
 In order to connect to Solr and generate reports it is necessary to authenticate using SSL client certificate. IF your platform is using solr certificates shipped by Alfresco default installation, you should not need to provide any additionnal configuration. You may still need to read the notes about default ssl certificates in [/doc/ssl.md](/doc/ssl.md#Security-Considerations).
 
@@ -73,6 +73,18 @@ In case you have specified a custom contentstore location hc-harvester may not b
 [repo_tiers]
 alfresco1.domain.tld contentstore_directory=/filer/data/contentstore
 
+```
+
+## Oracle databases
+
+There are multiple ways to specify the Oracle database URL. It depends on the driver used but each driver also offer different ways of specifying database locations.
+Not all of them are supported by the tool and if you're using Oracle TNSNames or LDAP specification you will need to add manually the `db_host` variable in the inventory file as follow:
+
+```
+...
+[repo_tiers:vars]
+db_host=orasrv1.domain.tld
+...
 ```
 
 ## Disabling Autodetection
