@@ -14,17 +14,17 @@ share_tiers
 index_tiers
 
 [all:vars]
-solr_context=1J49/solr4
-alfresco_context=1J49/alfresco
-share_context=1J49/share
+solr_context=solr4
+alfresco_context=alfresco
+share_context=share
 
 [repo_tiers:vars]
 #alfresco_log_pattern=/var/log/alfresco/alfresco.log*
-#alfresco_shared_loader: /opt/alfresco/extension-root
+#alfresco_shared_loader=/opt/alfresco/extension-root
 
 [share_tiers:vars]
 #share_log_pattern=/var/log/alfresco/share.log*
-#share_shared_loader: /opt/share/extension-root
+#share_shared_loader=/opt/share/extension-root
 
 [index_tiers:vars]
 #solr_home=/opt/solr/
