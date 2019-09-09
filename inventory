@@ -1,12 +1,12 @@
 [repo_tiers]
-172.20.0.1 ansible_port=4222
+172.20.0.1 ansible_ssh_port=4222
 
 [share_tiers]
-172.20.0.1 ansible_port=4222
+172.20.0.1 ansible_ssh_port=4222
 
 # Leave empty if using solr6 (unsupported for now)
 [index_tiers]
-172.20.0.1 ansible_port=4222
+172.20.0.1 ansible_ssh_port=4222
 
 [tomcat_servers:children]
 repo_tiers
