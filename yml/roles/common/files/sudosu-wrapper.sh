@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 more_sudo_opts=''
 
 while getopts :u:p:HS options; do
