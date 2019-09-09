@@ -6,7 +6,7 @@
 
 - name: Send Alfresco DB queries tool
   copy:
-    src: ../../../../alfresco-db-queries/target/alfresco-db-0.0.1-SNAPSHOT.jar
+    src: {{lookup('first_found', jarloc)}}
     dest: "{{ hc_tmp }}"
 
 - name: Send config and scripts files

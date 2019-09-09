@@ -3,6 +3,8 @@ db_queries_report_timeout: 3600
 # Alfresco tool to query the DB needs some variables to be set
 alfresco_db_queries_port: 8888
 
+jarver: 0.0.1-SNAPSHOT
+
 # Solr properties
 alfresco_solr_filterCache_size: 256
 alfresco_solr_queryResultCache_size: 1024
