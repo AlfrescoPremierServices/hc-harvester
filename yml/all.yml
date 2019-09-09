@@ -1,5 +1,7 @@
 ---
 - hosts: all
+  environment:
+    PATH: "{{ lookup('env','PATH') }}:{{ hc_tmp }}/bin"
   roles:
     - role: common
 

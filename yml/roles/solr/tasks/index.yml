@@ -14,6 +14,7 @@
   with_items:
     - nonblock
     - nonblock,direct
+  when: checked_privs.failed == false
   notify: Clean dd temp perf files (Index)
 
 - name: Alfresco index core read performance
@@ -24,15 +25,18 @@
   with_items:
     - nonblock
     - nonblock,direct
+  when: checked_privs.failed == false
 
-- name: Write repo performance results
+- name: Write index performance results
   template:
     src: hdd_perf.j2
     dest: "{{ hc_tmp }}/index_hdd_perf.md"
+  when: checked_privs.failed == false
 
-- name: Fetch repo disks performance
+- name: Fetch index disks performance
   fetch:
     src: "{{ hc_tmp }}/index_hdd_perf.md"
     dest: ../assets/{{ inventory_hostname }}/
     flat: yes
+  when: checked_privs.failed == false
 

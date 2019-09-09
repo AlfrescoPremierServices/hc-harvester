@@ -2,4 +2,4 @@
 catalina_log_dir: "{{ catalina_log_dir_cfg.stdout | regex_replace('.*=\\s*(.*)', '\\1') | regex_replace('\\${catalina\\.base}', catalina_base) }}"
 catalina_log_prefix: "{{ catalina_log_prefix_cfg.stdout | regex_replace('.*=\\s*(.*)', '\\1') }}"
 gc_log_suffix: "{{ gc_log_pattern | basename | regex_replace('%[a-zA-z]','*') }}"
-gc_log_dir: "{% if gc_log_pattern[0] != '/' %}{{ tomcat_cwd.stat.lnk_target }}/{% endif %}{{ gc_log_pattern | dirname }}"
+gc_log_dir: "{% if gc_log_pattern[0] != '/' %}{% if tomcat_cwd.skipped | default(false) == false %}{{ tomcat_cwd.stat.lnk_target }}/{% else %}{{ catalina_base }}{% endif %}{% endif %}{{ gc_log_pattern | dirname }}"

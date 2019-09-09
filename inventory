@@ -4,12 +4,35 @@
 [share_tiers]
 172.20.0.1 ansible_port=4222
 
+# Leave empty if using solr6 (unsupported for now)
 [index_tiers]
 172.20.0.1 ansible_port=4222
 
 [tomcat_servers:children]
 repo_tiers
 share_tiers
-#Comment out if using Solr6 Alfresco Search Service or Insight Engine
 index_tiers
+
+[all:vars]
+solr_context=solr4
+alfresco_context=alfresco
+share_context=share
+
+[repo_tiers:vars]
+#alfresco_log_pattern=/var/log/alfresco/alfresco.log*
+#alfresco_shared_loader=/opt/alfresco/extension-root
+
+[share_tiers:vars]
+#share_log_pattern=/var/log/alfresco/share.log*
+#share_shared_loader=/opt/share/extension-root
+
+[index_tiers:vars]
+#solr_home=/opt/solr/
+#solr_log_pattern=/var/log/alfresco/solr.log*
+#solr_client_cert=solrclient_crt
+#solr_client_key=solr_client_key
+
+[tomcat_servers:vars]
+#webapp_server_port=8181
+#webapp_server_scheme=http
 

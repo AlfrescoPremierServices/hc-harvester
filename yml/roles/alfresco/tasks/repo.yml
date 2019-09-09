@@ -1,12 +1,13 @@
 ---
 - name: Generate Alfresco JMX dump
   get_url: 
-    url: http://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/admin/jmxdump
+    url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/admin/jmxdump"
     dest: "{{ hc_tmp }}/jmxdump-{{ inventory_hostname }}.zip"
     force_basic_auth: yes
     url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
     timeout: "{{ jmxdump_timeout }}"
+    validate_certs: no
   notify: Clean up Alfresco archives
 
 - name: Fetch jmxdump
@@ -17,22 +18,19 @@
 
 - name: Get DB variables
   connection: local
-  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | awk '/^{{ item }}/{print $2}'
+  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | awk '/{{item }}/{print $2}'
   args:
     warn: false
   register: db_params
   with_items:
-    - db.url
+    - '^URL\s+jdbc'
     - db.driver
-    - db.name
-      #when: inventory_hostname == groups['repo_tiers'][0]
 
-- name: Set DB variables
+- name: Set DB Info
   set_fact:
-    db_url: "{{ db_params.results[0].stdout_lines[0] }}"
-    db_host: "{{ db_params.results[0].stdout_lines[0].split('/')[2].split(':')[0] }}"
-    db_name: "{{ db_params.results[2].stdout_lines[0] }}"
     db_driver: "{{ db_params.results[1].stdout_lines[0] }}"
+    db_url: "{{ db_params.results[0].stdout_lines[0] }}"
+    db_host: "{{ db_host | default(db_params.results[0].stdout_lines[0] | host_jdbc) }}"
 
 - name : Check network connectivity to database
   command: ping {{ db_host }} -c 12
@@ -59,34 +57,45 @@
     warn: false
   register: contentstore_dir
 
+- name: Search for S3 properties
+  connection: local
+  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | grep '^s3'
+  args:
+    warn: false
+  register: s3_props
+  failed_when: s3_props.rc == 2
+
 - name: Content Store write performance
-  command: dd if=/dev/zero of={{ contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0]) }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
+  command: dd if=/dev/zero of={{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
   register: dd_write_fs
   become: yes
   become_user: "{{ alfresco_user }}"
   with_items:
     - nonblock
     - nonblock,direct
+  when: checked_privs.failed == false and s3_props.stdout_lines | length == 0
   notify: Clean dd temp perf files (Repository)
 
 - name: Content Store read performance
-  command: dd if={{ contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0]) }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
+  command: dd if={{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
   register: dd_read_fs
   become: yes
   become_user: "{{ alfresco_user }}"
   with_items:
     - nonblock
     - nonblock,direct
+  when: checked_privs.failed == false and s3_props.stdout_lines | length == 0
 
 - name: Write repo performance results
   template:
     src: hdd_perf.j2
     dest: "{{ hc_tmp }}/hdd_perf.md"
+  when: checked_privs.failed == false and s3_props.stdout_lines | length == 0
 
 - name: Fetch repo disks performance
   fetch:
     src: "{{ hc_tmp }}/hdd_perf.md"
     dest: ../assets/{{ inventory_hostname }}/
     flat: yes
-
+  when: checked_privs.failed == false and s3_props.stdout_lines | length == 0
 

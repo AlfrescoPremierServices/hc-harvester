@@ -1,13 +1,13 @@
 ---
 - name: Get Tomcat log directory config
   shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.directory' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}            
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ tomcat_user }}"
   register: catalina_log_dir_cfg
 
 - name: Get Tomcat log file prefix config
   shell: grep '^[0-9]catalina\.org\.apache\.juli\.FileHandler\.prefix' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}               
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ tomcat_user }}"
   register: catalina_log_prefix_cfg
 
@@ -19,7 +19,7 @@
     paths: "{{ catalina_log_dir }}"
     patterns: "{{ catalina_log_prefix }}*"
     age: "{{ log_history }}"
-  become: yes
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ tomcat_user }}"
   register: found_catalina_logs
 

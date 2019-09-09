@@ -1,4 +1,24 @@
 ---
+- name: Copy sudosu authentication wrapper
+  copy:
+    src: sudosu-wrapper.sh
+    dest: "{{ hc_tmp }}/bin/"
+    mode: 0755
+  when: ansible_become_exe is defined and ansible_become_exe == hc_tmp + '/bin/sudosu-wrapper.sh'
+
+- name: Check root Privileges
+  command: /bin/true
+  become: yes
+  register: checked_root_privs
+  ignore_errors: yes
+
+- name: Re-Collect hardware facts as root
+  setup:
+    gather_subset: hardware
+    filter: ansible_mounts
+  become: yes
+  when : checked_root_privs.failed == false and ansible_mounts | length != ansible_mounts | map(attribute='size_total') | list | length
+
 - name: Get generic values for this system
   connection: local
   template:
@@ -19,9 +39,9 @@
     dest: ../assets/{{ inventory_hostname }}/
     src: ping.txt
 
-- name: Initialize temp directory
+- name: Initialize Healtchcheck temp directory
   file:
     state: directory
-    path: "{{hc_tmp }}"
+    path: "{{ hc_tmp }}"
     mode: 0777
- 
+
