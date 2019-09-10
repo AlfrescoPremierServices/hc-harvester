@@ -6,7 +6,7 @@
 
 - name: Send Alfresco DB queries tool
   copy:
-    src: {{lookup('first_found', jarloc)}}
+    src: "{{lookup('first_found', jarloc)}}"
     dest: "{{ hc_tmp }}"
 
 - name: Send config and scripts files
