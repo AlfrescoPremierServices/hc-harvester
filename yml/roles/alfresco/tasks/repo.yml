@@ -23,7 +23,7 @@
     warn: false
   register: db_params
   with_items:
-    - '^URL\s+jdbc'
+    - '^URL\ +jdbc'
     - db.driver
 
 - name: Set DB Info
