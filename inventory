@@ -14,9 +14,9 @@ share_tiers
 index_tiers
 
 [all:vars]
-solr_context=solr4
-alfresco_context=alfresco
-share_context=share
+solr_context=1J49/solr4
+alfresco_context=1J49/alfresco
+share_context=1J49/share
 
 [repo_tiers:vars]
 #alfresco_log_pattern=/var/log/alfresco/alfresco.log*
