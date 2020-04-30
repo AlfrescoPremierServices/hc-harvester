@@ -4,6 +4,7 @@ db_platforms:
   mariadb: mysql
   mysql: mysql
   sqlserver: microsoft
+  jtds: microsoft
 
 jarloc:
   - "../../../../alfresco-db-queries/target/alfresco-db-{{ jarver }}.jar"
