@@ -1,0 +1,46 @@
+---
+- name: Set Solr variables
+  include_vars: solr6_args.yml
+
+- name: Set Solr facts
+  set_fact:
+    solr_context: solr
+    solr_home: "{{ solr_home }}[0] }}"
+    solr_scheme: "{{ jetty_scheme[0] }}"
+    solr_port: "{% if jetty_scheme == 'https' %}{{ jetty_ssl_port[0] | default(jetty_port[0]) }}{% else %}{{ jetty_port[0] }}{% endif %}"
+    solr_pid: "{{ jetty_pid }}"
+    solr_user: "{{ jetty_user }}"
+    solr_log_dir: "{{ jetty_home[0] }}/{{ solr_log_dir[0] }}"
+
+- name: debug
+  debug:
+    var: item
+  with_items:
+    - "{{ solr_log_dir }}"
+
+- name: Find Solr log files
+  find:
+    paths: "{{ hostvars[inventory_hostname]['solr_log_dir'] }}"
+    patterns: solr.log*
+    age: "{{ log_history }}"
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ solr_user }}"
+  register: found_solr_logs
+
+- name: Archive Solr log files
+  archive:
+    path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
+    dest: "{{ hc_tmp }}/solr-log.zip"
+    mode: 0644
+    format: zip
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ solr_user }}"
+  when: found_solr_logs.matched > 0
+
+- name: Fetch archived log files
+  fetch:
+    src: "{{ hc_tmp }}/solr-log.zip"
+    dest: ../assets/{{ inventory_hostname }}/logs/
+    flat: yes
+  when: found_solr_logs.matched > 0
+

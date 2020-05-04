@@ -1,13 +1,4 @@
 ---
-- name: get Solr server info
-  uri:
-    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
-    return_content: yes
-    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
-    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
-    validate_certs: no
-  register: solr_info
-
 - name: Find Solr log files
   find:
     paths: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default(solr_cwd + '/placeholder' ) | dirname }}"
