@@ -1,0 +1,82 @@
+---
+- name: get Solr server info
+  uri:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
+    return_content: yes
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    validate_certs: no
+  register: solr_info
+
+- name: Find Solr log files
+  find:
+    paths: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default(solr_cwd + '/placeholder' ) | dirname }}"
+    patterns: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default('solr.log*') | basename }}"
+    age: "{{ log_history }}"
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ solr_user }}"
+  register: found_solr_logs
+
+- name: Archive Solr log files
+  archive:
+    path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
+    dest: "{{ hc_tmp }}/solr-log.zip"
+    mode: 0644
+    format: zip
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ solr_user }}"
+  when: found_solr_logs.matched > 0
+
+- name: Fetch archived log files
+  fetch:
+    src: "{{ hc_tmp }}/solr-log.zip"
+    dest: ../assets/{{ inventory_hostname }}/logs/
+    flat: yes
+  when: found_solr_logs.matched > 0
+
+- name: Get Solr home
+  xml:
+    path: "{{ solr_base }}/conf/Catalina/localhost/{{ solr_context | replace('/','#') }}.xml"
+    xpath: /Context/Environment[@name='solr/home']
+    content: attribute
+    attribute: value
+  register: solr_home_attr
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ solr_user }}"
+  when: hostvars[inventory_hostname]['solr_home'] is undefined
+
+- name: Archive Solr config
+  archive:
+    dest: "{{ hc_tmp }}/solr-cores-cfg.zip"
+    path:
+      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{% if solr_home_attr.matches[0].Environment.value[0] != '/' %}{{ solr_cwd }}/{% endif %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/workspace-SpacesStore/conf/"
+      - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{% if solr_home_attr.matches[0].Environment.value[0] != '/' %}{{ solr_cwd }}/{% endif %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/archive-SpacesStore/conf/"
+    mode: 0644
+    format: zip
+  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become_user: "{{ solr_user }}"
+  when: solr_home_attr.failed | default(false) == false or solr_home_attr.skipped | default(false) == true 
+
+- name: Fetch archived Solr config
+  fetch:
+    src: "{{ hc_tmp }}/solr-cores-cfg.zip"
+    dest: ../assets/{{ inventory_hostname }}/conf/
+    flat: yes
+  when: solr_home_attr.failed | default(false) == false or solr_home_attr.skipped | default(false) == true
+
+- name: Generate Solr SUMMARY report
+  get_url: 
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml"
+    dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+
+- name: Fetch Solr SUMMARY report
+  fetch:
+    src: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+
+- include: index.yml
