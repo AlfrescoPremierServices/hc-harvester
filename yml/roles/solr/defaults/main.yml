@@ -1,2 +1,5 @@
 ---
 solr_summary_report_timeout: 600
+solr_context: solr4
+solr_port: 8443
+solr_scheme: https
