@@ -19,11 +19,15 @@ for i in "$@"; do
     become_cmd="$become_cmd \"${i//\"/\\\"}\""
 done
 
+user_shell=$(getent passwd $become_user | cut -d : -f 7)
+current_user_shell=$(getent passwd `whoami` | cut -d : -f 7)
+[ x${user_shell##*/} == xfalse -o x${user_shell##*/} == xnologin ] && su_opts="-s $current_user_shell"
+
 if [ -n "$sudo_prompt" ]; then
-  sudo $more_sudo_opts -p "$sudo_prompt" su - $become_user << END
+  sudo $more_sudo_opts -p "$sudo_prompt" su $su_opts - $become_user << END
 $become_cmd
 END
-else sudo $more_sudo_opts su - $become_user << END
+else sudo $more_sudo_opts su $su_opts - $become_user << END
 $become_cmd
 END
 fi
