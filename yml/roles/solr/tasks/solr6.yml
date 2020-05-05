@@ -1,59 +1,104 @@
 ---
-- name: Set Solr variables
+- name: Set Search Service variables
   include_vars: solr6_args.yml
 
-- name: Set Solr facts
+- name: Set Search Service facts
   set_fact:
     solr_context: solr
-    solr_home: "{{ solr_home[0] }}"
-    solr_scheme: "{{ jetty_scheme[0] }}"
-    solr_port: "{% if jetty_scheme == 'https' %}{{ jetty_ssl_port[0] | default(jetty_port[0]) }}{% else %}{{ jetty_port[0] }}{% endif %}"
-    solr_pid: "{{ jetty_pid }}"
     solr_user: "{{ jetty_user }}"
+    solr_home: "{{ solr_home | default(jetty_solr_home[0]) }}"
+    solr_scheme: "{{ jetty_scheme[0] }}"
+    solr_port: "{{ jetty_ssl_port[0] | default(jetty_port[0]) if jetty_scheme == 'https' else jetty_port[0] }}"
     solr_log_dir: "{{ jetty_home[0] }}/{{ solr_log_dir[0] }}"
 
-- name: Find Solr log files
+- name: Check Search Service Privileges
+  command: /bin/true
+  become: yes
+  become_user: "{{ solr_user }}"
+  register: checked_solr6_privs
+  ignore_errors: yes
+
+- name: Get Search Service working dir                                                                                                                                                        [80/4910]
+  stat:
+    path: /proc/{{ jetty_pid }}/cwd
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: solr_cwd
+  become: yes
+  become_user: "{{ solr_user }}"
+  when: checked_solr6_privs.failed == false
+
+- name:  Get Search Service process file limits
+  command: cat /proc/{{ jetty_pid }}/limits
+  register: solr_proc_limits 
+
+- name: Get Search Service process command line
+  shell: cat -v /proc/{{ jetty_pid }}/cmdline | sed 's/\^@/\n /g'
+  register: solr_proc_cmdline
+
+- name: Get Search Service process Environment
+  shell: cat -v /proc/{{ jetty_pid }}/environ | sed 's/\^@/\n/g'
+  register: solr_proc_environ
+  become: yes
+  become_user: "{{ solr_user }}"
+  when: checked_solr6_privs.failed == false
+
+- name: Get Search Service process status
+  command: cat /proc/{{ jetty_pid }}/status
+  register: solr_proc_status
+
+- name: Save Search Service process details
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/solr6-{{ jetty_pid }}.proc
+    src: proc_detail
+    newline_sequence: \r\n
+
+- name: Find Search Service log files
   find:
     paths: "{{ hostvars[inventory_hostname]['solr_log_dir'] }}"
-    patterns: solr.log*
+    patterns:
+      - solr.log*
+      - "{{ gc_log_pattern | basename }}*"
     age: "{{ log_history }}"
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'yes' if checked_solr6_privs.failed == false else 'no' }}"
   become_user: "{{ solr_user }}"
   register: found_solr_logs
 
-- name: Archive Solr log files
+- name: Archive Search Service log files
   archive:
     path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
-    dest: "{{ hc_tmp }}/solr6-log.zip"
+    dest: "{{ hc_tmp }}/solr-log.zip"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'yes' if checked_solr6_privs.failed == false else 'no' }}"
   become_user: "{{ solr_user }}"
   when: found_solr_logs.matched > 0
 
-- name: Fetch archived log files
+- name: Fetch archived Search Service log files
   fetch:
-    src: "{{ hc_tmp }}/solr6-log.zip"
+    src: "{{ hc_tmp }}/solr-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
   when: found_solr_logs.matched > 0
 
-- name: Archive Solr config
+- name: Archive Search Service config
   archive:
-    dest: "{{ hc_tmp }}/solr6-cores-cfg.zip"
+    dest: "{{ hc_tmp }}/solr-cores-cfg.zip"
     path:
       - "{{ solr_home }}/conf/"
       - "{{ solr_home }}/alfresco/conf/"
       - "{{ solr_home }}/archive/conf/"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'yes' if checked_solr6_privs.failed == false else 'no' }}"
   become_user: "{{ solr_user }}"
   when: solr_home is defined
 
-- name: Fetch archived Solr config
+- name: Fetch archived Search Service config
   fetch:
-    src: "{{ hc_tmp }}/solr6-cores-cfg.zip"
+    src: "{{ hc_tmp }}/solr-cores-cfg.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
   when: solr_home is defined

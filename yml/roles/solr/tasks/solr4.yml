@@ -18,7 +18,7 @@
   become_user: "{{ solr_user }}"
   when: found_solr_logs.matched > 0
 
-- name: Fetch archived log files
+- name: Fetch archived Solr log files
   fetch:
     src: "{{ hc_tmp }}/solr-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
@@ -70,4 +70,3 @@
     dest: ../assets/{{ inventory_hostname }}/
     flat: yes
 
-- include: index.yml

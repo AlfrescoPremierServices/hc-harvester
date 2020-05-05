@@ -1,6 +1,6 @@
 ---
 jetty_home: "{{ outer_loop | regex_search('.*java\\s+\\-server\\s+.*-D\\s*jetty\\.home=(.*?)(\\s.*)?$', '\\1') }}"
-solr_home: "{{ outer_loop | regex_search('.*java\\s+\\-server\\s+.*-D\\s*solr\\.solr\\.home=(.*?)(\\s.*)?$', '\\1') }}"
+jetty_solr_home: "{{ outer_loop | regex_search('.*java\\s+\\-server\\s+.*-D\\s*solr\\.solr\\.home=(.*?)(\\s.*)?$', '\\1') }}"
 jetty_port: "{{ outer_loop | regex_search('.*java\\s+\\-server\\s+.*-D\\s*jetty\\.port=(.*?)(\\s.*)?$', '\\1') }}"
 jetty_ssl_port: "{{ outer_loop | regex_search('.*java\\s+\\-server\\s+.*-D\\s*jetty\\.https\\.port=(.*?)(\\s.*)?$', '\\1') }}"
 jetty_scheme: "{{ outer_loop | regex_search('.*java\\s+\\-server\\s+.*--module=(https?)(\\s.*)?$', '\\1') }}"
