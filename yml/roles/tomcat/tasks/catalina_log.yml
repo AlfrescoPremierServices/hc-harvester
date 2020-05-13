@@ -16,8 +16,14 @@
 
 - name: Find Tomcat log files
   find:
-    paths: "{{ catalina_log_dir }}"
-    patterns: "{{ catalina_log_prefix }}*"
+    paths:
+      - "{{ catalina_log_dir }}"
+      - "{{ tomcat_out.stat.lnk_target | dirname if tomcat_out.skipped | default(false) == false else catalina_base + '/logs' }}"
+      - "{{ tomcat_err.stat.lnk_target | dirname if tomcat_err.skipped | default(false) == false else catalina_base + '/logs' }}"
+    patterns:
+      - "{{ catalina_log_prefix }}*"
+      - "{{ tomcat_out.stat.lnk_target | basename if tomcat_out.skipped | default(false) == false else 'catalina.out' }}"
+      - "{{ tomcat_err.stat.lnk_target | basename if tomcat_err.skipped | default(false) == false else 'catalina.out' }}"
     age: "{{ log_history }}"
   become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ tomcat_user }}"
@@ -25,7 +31,7 @@
 
 - name: Build catalina dict
   set_fact:
-    catalina_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_catalina_logs.files | map(attribute='path') | list }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}-{{ tomcat_pid }}.log.zip" } ]
+    catalina_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_catalina_logs.files | map(attribute='path') | list | unique }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}-{{ tomcat_pid }}.log.zip" } ]
   when: found_catalina_logs.matched > 0
 
 - name: Add catalina log files to the list of assets to archive
