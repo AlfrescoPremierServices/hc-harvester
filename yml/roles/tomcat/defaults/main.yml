@@ -1,0 +1,4 @@
+---
+alfresco_context: alfresco
+share_context: share
+solr_context: solr4
