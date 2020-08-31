@@ -37,6 +37,8 @@
     format: zip
   become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ alfresco_user }}"
+  register: alfext_archive
+  ignore_errors: True
   notify: Clean up Alfresco archives
 
 - name: Fetch archived extension root
@@ -44,6 +46,7 @@
     src: "{{ hc_tmp }}/alfresco-extension.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
+  when: alfext_archive.state != 'absent'
 
 - name: Fetch archived log files
   fetch:

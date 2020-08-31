@@ -27,6 +27,8 @@
     format: zip
   become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
   become_user: "{{ share_user }}"
+  register: webext_archive
+  ignore_errors: True
   notify: Clean up Share archives
 
 - name: Fetch archived extension root
@@ -34,6 +36,7 @@
     src: "{{ hc_tmp }}/alfresco-web-extension.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
+  when: webext_archive.state != 'absent'
 
 - name: Fetch archived log files
   fetch:

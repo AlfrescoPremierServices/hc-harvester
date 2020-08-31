@@ -1,5 +1,5 @@
 ---
-- hosts: "{{ groups['repo_tiers'][0] }}"
+- hosts: "{{ groups['repo_tiers'][0] | default('nx_dummy_host') }}"
   environment:
     PATH: "{{ lookup('env','PATH') }}:{{ hc_tmp }}/bin"
   roles:
