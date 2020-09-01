@@ -58,8 +58,8 @@ Otherwise please review the [advanced configuration topic](/doc/advanced-config.
 ### Execute
 
 As stated in the pre-requisite, make sure you can login to your hosts using ssh for Linux boxes before trying to run.
-The recommandation is to configure your local ssh/config file so you can login to the machine in a non-interactive maner with the appropriate user (please refer to ssh documentation).
-Once you've prepared your inventory file and provided necessary informations (lie passwords and maybe others), you'll need to initialize the tool:
+The recommandation is to configure your local ssh/config file so you can login to the machine in a non-interactive manner with the appropriate user (please refer to ssh documentation).
+Once you've prepared your inventory file and provided necessary informations (like passwords and maybe others), you'll need to initialize the tool:
 
 ```
 $ git submodule init
