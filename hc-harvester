@@ -35,7 +35,7 @@ def main(args):
 		raw_input('All authentication parameters must be defined manually in the inventory file.\nSee /doc/user-permissions.md for details before running if unsure')
 		become_opts = ''
 	cmd = 'ansible-playbook --ask-vault-pass -i inventory' + become_opts +  ' hc.yml'
-	print 'Running ' + cmd
+	print('Running ' + cmd)
 	os.system(cmd)
 
 if __name__ == '__main__':
