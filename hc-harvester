@@ -2,41 +2,71 @@
 # -*- coding: utf-8 -*-
 #
 #  hc-harvester.py
-#  
+#
 #  Copyright 2019 Alexandre Chapellon <alexandre.chapellon@alfresco.com>
-#  
+#
 #  Wrapper script to the hc.yml Ansible playbook
 #  It will prompt the user for informations about the
 #  way the Alfresco platform is setup and start the
 #  playbook accordingly
+from distutils.util import strtobool
 
 def main(args):
-	global consitent_login
-	while consitent_login == '' :
-		consitent_login = input('Are the credentials valid for every server? (True or False)\n')
-		
-	if (consitent_login == True):
-		global ssh_user
-		while ssh_user == '' :
-			ssh_user = raw_input('What SSH user are you loging in as?\n')
-			
-		global passwd_ssh_user
-		while type(passwd_ssh_user) != bool :
-			passwd_ssh_user = input('A password is needed when loging in via SSH? (True or False)\n')
-			
-		global passwd_sudo
-		while type(passwd_sudo) != bool :
-			passwd_sudo = input('A password is needed when using sudo? (True or False)\n')
-			
-		become_opts = ' -u ' + ssh_user
-		become_opts += ' -k' if passwd_ssh_user is True else ' '
-		become_opts += ' -K ' if passwd_sudo is True else ' '
-	else:
-		raw_input('All authentication parameters must be defined manually in the inventory file.\nSee /doc/user-permissions.md for details before running if unsure')
-		become_opts = ''
-	cmd = 'ansible-playbook --ask-vault-pass -i inventory' + become_opts +  ' hc.yml'
-	print('Running ' + cmd)
-	os.system(cmd)
+        global consitent_login
+        while type(consitent_login) != bool :
+                try:
+                        consitent_login = bool(strtobool(input('Are the credentials valid for every server? (y/n)\n')))
+                        break
+                except ValueError:
+                        print('Please type y or n')
+
+        if (consitent_login):
+                global ssh_user
+                while ssh_user == '' :
+                        ssh_user = input('What SSH user are you loging in as?\n')
+
+                global passwd_ssh_user
+                while type(passwd_ssh_user) != bool :
+                        try:
+                                passwd_ssh_user = bool(strtobool(input('Is a password needed when loging in via SSH? (y/n)\n')))
+                                break
+                        except ValueError:
+                                print('Please type y or n')
+
+                global passwd_sudo
+                while type(passwd_sudo) != bool :
+                        try:
+                                passwd_sudo = bool(strtobool(input('Is a password needed when using sudo? (y/n)\n')))
+                                break
+                        except ValueError:
+                                print('Please type y or n')
+
+                become_opts = ' -u ' + ssh_user
+                become_opts += ' -k' if passwd_ssh_user is True else ' '
+                become_opts += ' -K ' if passwd_sudo is True else ' '
+        else:
+                print('All authentication parameters must be defined manually in the inventory file.\nSee /doc/user-permissions.md for details before running if unsure\n')
+                become_opts = ''
+
+        cmd = 'ansible-playbook --ask-vault-pass -i inventory' + become_opts + ' hc.yml'
+
+        print('Starting gathering of information\n')
+        print('The command is : ' + cmd + '\n')
+        print('Next time, if you prefer not answering the questions, you can execute it from the hc-harverster folder\n')
+
+        global execute_script
+        while type(execute_script) != bool :
+                try:
+                        execute_script = bool(strtobool(input('Continue? (y/n)\n')))
+                        break
+                except ValueError:
+                        print('Please type y or n')
+
+        if (execute_script):
+                print('Running...')
+                os.system(cmd)
+        else:
+                print('Execution aborted')
 
 if __name__ == '__main__':
     import sys
@@ -45,4 +75,5 @@ if __name__ == '__main__':
     ssh_user=''
     passwd_ssh_user=''
     passwd_sudo=''
+    execute_script=''
     sys.exit(main(sys.argv))
