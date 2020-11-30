@@ -70,8 +70,8 @@ solr.domain.tld ansible_become_method=sudo ansible_become_exe="{{ hc_tmp }}/bin/
 ## Dealing with non root access
 
 In case the user you log in as is not allowed to become the root user anyhow, the playbook will not be able to install the lxml python module. This module is required to parse xml configuration files and automatically detect some parts of the architecture (namely, the tomcat ports, schemes and the solr home folder).
-If you know python-lxml is already installed on the servers, then you can skip this section and proceed normally. hc-harvester will return an error checking for root permission, but that's not harmful for the playbook if the module is already installed.
-On the other hand, if the module is not installed, you will need to tell to the tool:
+If you know python-lxml is already installed on the servers, then you can skip this section and proceed normally. hc-harvester will return an error checking for root permission, but that is not harmful for the playbook.
+On the other hand, if this module is not installed on the servers, it is required to configure the tool with:
 
  - Which port tomcat instances are running on
  - What schemes tomcat instances are using
