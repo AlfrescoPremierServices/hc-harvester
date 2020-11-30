@@ -1,6 +1,6 @@
 # SSH access to servers
 
-Depending on your server configuration, you can login to servers in different manners. For example, permissive setups will allow logging in as root, less permissive setups will allow login as a normal user and once logged in become root either using the `su` command and providing the root password, or using the sudo command providing no password...
+Depending on your server configuration, you can log in to servers in different manners. For example, a permissive infrastructure will allow logging in as root but a less permissive infrastructure will only allow to log in as a normal user and once logged in become root, either using the `su` command and providing the root password, or using the `sudo` command without providing a password...
 You got the point, there are a lot of possible combinations.
 
 hc-harvester tries to make it simpler for users to deal with those combinations by:
@@ -47,7 +47,7 @@ become_method: su
 ### Mixed authentication methods
 
 Alfresco platforms should always be as consistent as possible. However it may happen that different servers in the platform use different methods of privilege escalation.
-In this case `become_*` parameters can be specified for each host. Instead of using the `group_vars/all` file, the inventory file can be used:
+In this case `become_*` parameters can be specified for each host. Instead of using the `group_vars/all` file, the `inventory` file can be used:
 
 ```
 [repo_tiers]
