@@ -7,7 +7,7 @@ Also the username and password to access the database is needed in order to issu
 Credentials are stored and accessed in a secure manner - within a vault - so they cannot be read without providing the vault password. Ansible provide the `ansible-vault` command in order to manage sensitive data like passwords.
 
 Both credentials are stored in the vault file `yml/roles/alfresco/vars/secrets.yml`. By default the vault password is set to "alfresco".
-***First thing you should do is to change the vault password to something else*** by using the command bellow (you will be prompted for the old and new passwords):
+***First thing you should do is to change the vault password to something else*** by using the command below (you will be prompted for the old and new passwords):
                                                                                                                                                                                               
 ```                                                                                                                                                                                           
 $ ansible-vault rekey yml/roles/alfresco/vars/secrets.yml
