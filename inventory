@@ -4,7 +4,6 @@ localhost
 [share_tiers]
 localhost
 
-# Leave empty if using solr6 (unsupported for now)
 [index_tiers]
 localhost
 
@@ -14,7 +13,7 @@ share_tiers
 index_tiers
 
 [all:vars]
-solr_context=solr4
+solr_context=solr
 alfresco_context=alfresco
 share_context=share
 
