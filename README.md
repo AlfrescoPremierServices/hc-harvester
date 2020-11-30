@@ -58,7 +58,7 @@ Otherwise please review the [advanced configuration topic](/doc/advanced-config.
 ### Execute
 
 As stated in the requirements section, make sure you can login to your hosts using ssh for Linux servers before trying to run the harvester.
-The recommandation is to configure your local ssh/config file so you can login to the machine in a non-interactive manner with the appropriate user (please refer to ssh documentation).
+The recommandation is to configure your local `ssh/config` file so you can login to the machine in a non-interactive manner with the appropriate user (please refer to ssh documentation).
 Once you have prepared your inventory file and provided the necessary information (like passwords and maybe other login configuration), you will need to initialize the tool:
 
 ```
