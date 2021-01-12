@@ -36,7 +36,7 @@
     src: "{{ hc_tmp }}/alfresco-web-extension.zip"
     dest: ../assets/{{ inventory_hostname }}/conf/
     flat: yes
-  when: webext_archive.state != 'absent'
+  when: webext_archive.failed == false
 
 - name: Fetch archived log files
   fetch:
