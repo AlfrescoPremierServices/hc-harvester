@@ -1,6 +1,6 @@
 ---
 - name: Find Search Service process
-  shell: ps -o pid,user,cmd -C java | egrep '\s+-server\s+.*solr\.'
+  shell: ps -o pid,user,cmd -C java | egrep '\s+-D\s*solr\.' | egrep '\s+--module=http'
   register: ps_search_service
   ignore_errors: true
 
