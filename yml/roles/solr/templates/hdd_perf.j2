@@ -4,14 +4,14 @@
 
 ### Non blocking IO
 
-$ {{ dd_write_fs.results[0].cmd | join(' ') }}
+{{ inventory_hostname }}$ {{ dd_write_fs.results[0].cmd | join(' ') }}
 {% for line in dd_write_fs.results[0].stderr_lines %}
 {{ line }}
 {% endfor %}
 
 ### Cache disabled
 
-$ {{ dd_write_fs.results[1].cmd | join(' ') }}
+{{ inventory_hostname }}$ {{ dd_write_fs.results[1].cmd | join(' ') }}
 {% for line in dd_write_fs.results[1].stderr_lines %}
 {{ line }}
 {% endfor %}
@@ -20,14 +20,14 @@ $ {{ dd_write_fs.results[1].cmd | join(' ') }}
 
 ### Non blocking IO
 
-$ {{ dd_read_fs.results[0].cmd | join(' ') }}
+{{ inventory_hostname }}$ {{ dd_read_fs.results[0].cmd | join(' ') }}
 {% for line in dd_read_fs.results[0].stderr_lines %}
 {{ line }}
 {% endfor %}
 
 ### Cache disabled
 
-$ {{ dd_read_fs.results[1].cmd | join(' ') }}
+{{ inventory_hostname }}$ {{ dd_read_fs.results[1].cmd | join(' ') }}
 {% for line in dd_read_fs.results[1].stderr_lines %}
 {{ line }}
 {% endfor %}
