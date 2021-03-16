@@ -83,4 +83,5 @@ You will be asked some easy questions you need to answer - use `True` or `False`
  * Complete most common environement (Linux, Tomcat, PostgreSQL)
  * Add appropriate tasks for Windows
  * Add other J2EE servers tasks
+ * Add units in the column headers (for example  Total Size in acs-db-report)
  * Plenty of stuff!
