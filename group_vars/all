@@ -6,4 +6,4 @@ hc_tmp: /tmp/hc
 log_history: "-1w"
 
 # Use authentication wrapper to handle `sudo su` only configs
-ansible_become_exe: "{{ hc_tmp }}/bin/sudosu-wrapper.sh"
+#ansible_become_exe: "{{ hc_tmp }}/bin/sudosu-wrapper.sh"

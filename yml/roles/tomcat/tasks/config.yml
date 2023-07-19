@@ -76,6 +76,7 @@
 
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
+  debugger: always
   stat: 
     path: "{{ catalina_base }}/webapps/{{ item | replace('/','#') }}"
     get_attributes: no
