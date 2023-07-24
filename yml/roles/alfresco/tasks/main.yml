@@ -1,6 +1,5 @@
 ---
 - name: get server info
-  debugger: on_failed
   uri:
     url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/api/server"
     validate_certs: no

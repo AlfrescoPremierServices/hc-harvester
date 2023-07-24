@@ -8,15 +8,15 @@
 
 - name: Check root Privileges
   command: /bin/true
-  become: yes
+  become: true
   register: checked_root_privs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Re-Collect hardware facts as root
   setup:
     gather_subset: hardware
     filter: ansible_mounts
-  become: yes
+  become: true
   when : checked_root_privs.failed == false and ansible_mounts | length != ansible_mounts | map(attribute='size_total') | list | length
 
 - name: Get generic values for this system
@@ -31,7 +31,7 @@
   register: ping_result
   with_items:
     - "{{ groups['all'] | map('extract', hostvars, 'ansible_default_ipv4') | map(attribute='address') | list }}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Reports network results
   connection: local

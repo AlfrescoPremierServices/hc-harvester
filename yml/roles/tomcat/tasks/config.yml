@@ -2,12 +2,25 @@
 - name: Set process variables
   include_vars: tomcat_args.yml
 
+- name: Debug - Print process variables
+  ansible.builtin.debug:
+    msg: 
+      - catalina_base is {{ catalina_base }} 
+      - catalina_home is {{ catalina_home }}
+      - catalina_tmp is {{ catalina_tmp }}
+      - gc_log_pattern is {{ gc_log_pattern }}
+      - ps_tomcat_trimed is {{ ps_tomcat_trimed }}
+      - tomcat_pid is {{ tomcat_pid }}
+      - tomcat_user is {{ tomcat_user }}
+      - java_bin is {{ java_bin }}
+  when: activate_debug == true
+
 - name: Check Privileges
   command: /bin/true
-  become: yes
+  become: true
   become_user: "{{tomcat_user }}"
   register: checked_privs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Get Tomcat working dir
   stat:
@@ -16,7 +29,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_cwd
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -27,7 +40,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_out
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -38,7 +51,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_err
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -55,7 +68,7 @@
 - name: Get Tomcat process Environment
   shell: cat -v /proc/{{ tomcat_pid }}/environ | sed 's/\^@/\n/g'
   register: tomcat_proc_environ
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -68,17 +81,42 @@
     path: "{{ catalina_base }}/conf/server.xml"
     xpath: /Server/Service/Connector[contains('HTTP/1.1 org.apache.coyote.http11.Http11Protocol org.apache.coyote.http11.Http11NioProtocol org.apache.coyote.http11.Http11AprProtocol', @protocol)]
     content: attribute
-    attribute: port
   register: tomcat_connector
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
+- name: Debug - Print tomcat_connector variables
+  ansible.builtin.debug:
+    msg: 
+      - tomcat_connector is {{ tomcat_connector }} 
+  when: activate_debug == true  
+
+- name: Extract Tomcat appBase from server.xml
+  xml:
+    path: "{{ catalina_base }}/conf/server.xml"
+    xpath: /Server/Service/Engine/Host
+    content: attribute
+  register: serverHost
+  become: true
+  become_user: "{{ tomcat_user }}"
+  when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
+
+- set_fact:
+    app_base_value: "{{ serverHost.matches[0].Host.appBase }}"
+
+- name: Debug - Print app_base_dir variables
+  ansible.builtin.debug:
+    msg: 
+      - app_base_value is {{ app_base_value }}
+      - serverHost is {{ serverHost }}
+      - serverHost.matches  is {{ serverHost.matches }}
+  when: activate_debug == true  
+
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
-  debugger: always
   stat: 
-    path: "{{ catalina_base }}/webapps/{{ item | replace('/','#') }}"
+    path: "{{ app_base_value }}/{{ item | replace('/','#') }}"
     get_attributes: no
     follow: yes
   register: webapp_path
@@ -89,6 +127,12 @@
     - "{{ alfresco_context }}"
     - "{{ share_context }}"
     - "{{ solr_context }}"
+
+- name: Debug - Print deployed Tomcat webapps
+  ansible.builtin.debug:
+    msg: 
+      - webapp_path is {{ webapp_path }}
+  when: activate_debug == true  
 
 - name: Export Alfresco Specific variables
   set_fact:
