@@ -4,6 +4,15 @@
     state: directory
     path: "{{ hc_tmp }}"
 
+- name: Compile Alfresco DB Queries tool
+  command: mvn -f {{inventory_dir}}/alfresco-db-queries/ clean compile install
+  register: mvn_result
+
+- name: Debug - Mvn clean compile install
+  ansible.builtin.debug:
+    msg: mvn_result is {{ mvn_result }}
+  when: activate_debug == true
+
 - name: Send Alfresco DB queries tool
   copy:
     src: "{{lookup('first_found', jarloc)}}"
