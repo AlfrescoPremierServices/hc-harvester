@@ -25,6 +25,8 @@
 - name: get Solr server info
   uri:
     url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
     return_content: yes
     client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
@@ -47,6 +49,8 @@
 - name: Generate Solr SUMMARY report
   get_url:
     url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
     dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
     client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"

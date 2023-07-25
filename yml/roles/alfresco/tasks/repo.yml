@@ -35,7 +35,7 @@
 - name : Check network connectivity to database
   command: ping {{ db_host }} -c 12
   register: db_ping_result
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Reports DB network results
   connection: local
@@ -68,7 +68,7 @@
 - name: Content Store write performance
   command: dd if=/dev/zero of={{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
   register: dd_write_fs
-  become: yes
+  become: true
   become_user: "{{ alfresco_user }}"
   with_items:
     - nonblock
@@ -79,7 +79,7 @@
 - name: Content Store read performance
   command: dd if={{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
   register: dd_read_fs
-  become: yes
+  become: true
   become_user: "{{ alfresco_user }}"
   with_items:
     - nonblock

@@ -18,7 +18,7 @@
 - name: Check Privileges
   command: /bin/true
   become: true
-  become_user: "{{tomcat_user }}"
+  become_user: "{{ tomcat_user }}"
   register: checked_privs
   ignore_errors: true
 
@@ -109,8 +109,6 @@
   ansible.builtin.debug:
     msg: 
       - app_base_value is {{ app_base_value }}
-      - serverHost is {{ serverHost }}
-      - serverHost.matches  is {{ serverHost.matches }}
   when: activate_debug == true  
 
 # WARNING loop order matters as positional arguments are used later in play
@@ -131,7 +129,9 @@
 - name: Debug - Print deployed Tomcat webapps
   ansible.builtin.debug:
     msg: 
-      - webapp_path is {{ webapp_path }}
+      - alfresco exists is {{ webapp_path.results[0].stat.exists }}
+      - share exists is {{ webapp_path.results[1].stat.exists }}
+      - solr exists is {{ webapp_path.results[2].stat.exists }}
   when: activate_debug == true  
 
 - name: Export Alfresco Specific variables
@@ -145,6 +145,18 @@
     alfresco_java: "{{ java_bin }}"
   when: webapp_path.results[0].stat.exists == True
 
+- name: Debug - Alfresco Specific variables
+  ansible.builtin.debug:
+    msg: 
+      - alfresco_port is {{ alfresco_port }}
+      - alfresco_scheme is {{ alfresco_scheme }}
+      - alfresco_base is {{ alfresco_base }}
+      - alfresco_cwd is {{ alfresco_cwd }}
+      - alfresco_user is {{ alfresco_user }}
+      - alfresco_shared_loader is {{ alfresco_shared_loader }}
+      - alfresco_java is {{ alfresco_java }}
+  when: webapp_path.results[0].stat.exists == True and activate_debug == true
+
 - name: Export Share Specific variables
   set_fact:
     share_port: "{% if hostvars[inventory_hostname]['webapp_server_port'] is undefined %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
@@ -155,6 +167,17 @@
     share_java: "{{ java_bin }}"
   when: webapp_path.results[1].stat.exists == True
 
+- name: Debug - Share Specific variables
+  ansible.builtin.debug:
+    msg: 
+    - share_port is {{ share_port }}
+    - share_base is {{ share_base }}
+    - share_cwd is {{ share_cwd }}
+    - share_user is {{ share_user }}
+    - share_shared_loader is {{ share_shared_loader }}
+    - share_java is {{ share_java }}
+  when: webapp_path.results[1].stat.exists == True and activate_debug == true
+
 - name: Export Solr Specific variables
   set_fact:
     solr_port: "{% if tomcat_connector.skipped | default(false) == false and tomcat_connector.matches | length > 0 %}{{ tomcat_connector.matches[0]['Connector']['port'] }}{% else %}{{ hostvars[inventory_hostname]['webapp_server_port'] | default('8080') }}{% endif %}"
@@ -164,6 +187,17 @@
     solr_user: "{{ tomcat_user }}"
     solr_java: "{{ java_bin }}"
   when: webapp_path.results[2].stat.exists == True
+
+- name: Debug - Solr Specific variables
+  ansible.builtin.debug:
+    msg: 
+    - solr_port is {{ solr_port }}
+    - solr_scheme is {{ solr_scheme }}
+    - solr_base is {{ solr_base }}
+    - solr_cwd is {{ solr_cwd }}
+    - solr_user is {{ solr_user }}
+    - solr_java is {{ solr_java }}
+  when: webapp_path.results[2].stat.exists == True and activate_debug == true
 
 - name: Save Alfresco process variables
   connection: local
