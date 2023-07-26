@@ -64,16 +64,13 @@ Once you have prepared your inventory file and provided the necessary informatio
 ```
 $ git submodule init
 $ git submodule update
-$ cd alfresco-db-queries
-$ mvn install:install-file -Dfile=./lib/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.3 -Dpackaging=jar && mvn package
-$ cd -
 ```
 
 You only need to do this once (unless you update the alfresco-db-queries tool).
 You can now start the play by running:
 
 ```
-$ ./hc-harvester
+$ python3 ./hc-harvester
 ```
 
 You will be asked some easy questions you need to answer - use `True` or `False` when needed (case matters!). You may also be prompted for passwords.
