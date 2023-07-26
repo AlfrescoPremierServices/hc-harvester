@@ -1,0 +1,4 @@
+List Tomcat installed webapps and occupation in dir: {{ app_base_value }}
+
+Space occupation, directory
+{{ tomcat_webapps.stdout }}
