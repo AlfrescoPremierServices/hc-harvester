@@ -1,4 +1,9 @@
 ---
+- name: Search Service
+  ansible.builtin.debug:
+    msg: 
+    - solr_engine is {{ solr_engine }}
+
 - name: Find Search Service process
   shell: ps -o pid,user,cmd -C java | egrep '\s+-D\s*solr\.' | egrep '\s+--module=http'
   register: ps_search_service
@@ -11,6 +16,7 @@
   with_items:                                                                                  
     - "{{ solr_client_cert | default('solrclient_crt') }}"
     - "{{ solr_client_key | default('solrclient_key') }}"
+  when: solr_engine == 'solr6' or solr_engine == 'solr4' 
 
 - include: solr6.yml
   loop: "{{ ps_search_service.stdout_lines }}"
@@ -18,52 +24,9 @@
     loop_var: outer_loop
     index_var: outer_loop_key
   when: solr_engine == 'solr6' 
-  #when: ps_search_service is defined and ps_search_service.rc == 0
 
 - include: solr4.yml
   when: solr_engine == 'solr4' 
-  #when: ps_search_service.failed | default(false)
-
-- name: get Solr server info
-  uri:
-    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
-    headers: 
-      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
-    return_content: yes
-    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
-    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
-    validate_certs: no
-    status_code:
-      - 404
-      - 200
-  register: solr_info
-
-- name: get Solr (1.4) server info
-  uri:
-    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/admin/system?wt=json"
-    return_content: yes
-    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
-    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
-    validate_certs: no
-  register: "{{ solr_info if solr_info.status == 404 else summy_solr_info_register }}"
-  when: solr_info.status == 404
-
-- name: Generate Solr SUMMARY report
-  get_url:
-    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml"
-    headers: 
-      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
-    dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
-    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
-    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
-    timeout: "{{ solr_summary_report_timeout }}"
-    validate_certs: no
-
-- name: Fetch Solr SUMMARY report
-  fetch:
-    src: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
-    dest: ../assets/{{ inventory_hostname }}/
-    flat: yes
 
 - include: index.yml
   when: checked_privs.failed | default(false) == false or checked_solr6_privs.failed | default(false) == false

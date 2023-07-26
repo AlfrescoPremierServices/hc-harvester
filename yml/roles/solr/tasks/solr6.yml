@@ -1,8 +1,8 @@
 ---
-- name: Set Search Service variables
+- name: Set Search Service variables - Solr6
   include_vars: solr6_args.yml
 
-- name: Set Search Service facts
+- name: Set Search Service facts - Solr6
   set_fact:
     solr_context: solr
     solr_user: "{{ jetty_user }}"
@@ -12,7 +12,7 @@
     #solr_log_dir: "{{ jetty_home[0] }}/{{ solr_log_dir[0] }}"
     solr_log_dir: "{{ solr_log_dir[0] }}"
 
-- name: Debug - Search Services facts
+- name: Debug - Search Services facts - Solr6
   ansible.builtin.debug:
     msg: 
     - solr_context is {{ solr_context }}
@@ -23,14 +23,14 @@
     - solr_log_dir is {{ solr_log_dir }}
   when: activate_debug == true 
 
-- name: Check Search Service Privileges
+- name: Check Search Service Privileges - Solr6
   command: /bin/true
   become: true
   become_user: "{{ solr_user }}"
   register: checked_solr6_privs
   ignore_errors: true
 
-- name: Get Search Service working dir                                                                                                                                                        [80/4910]
+- name: Get Search Service working dir - Solr6                                                                                                                                                 [80/4910]
   stat:
     path: /proc/{{ jetty_pid }}/cwd
     get_attributes: no
@@ -41,26 +41,26 @@
   become_user: "{{ solr_user }}"
   when: checked_solr6_privs.failed == false
 
-- name:  Get Search Service process file limits
+- name:  Get Search Service process file limits - Solr6
   command: cat /proc/{{ jetty_pid }}/limits
   register: solr_proc_limits 
 
-- name: Get Search Service process command line
+- name: Get Search Service process command line - Solr6
   shell: cat -v /proc/{{ jetty_pid }}/cmdline | sed 's/\^@/\n /g'
   register: solr_proc_cmdline
 
-- name: Get Search Service process Environment
+- name: Get Search Service process Environment - Solr6
   shell: cat -v /proc/{{ jetty_pid }}/environ | sed 's/\^@/\n/g'
   register: solr_proc_environ
   become: true
   become_user: "{{ solr_user }}"
   when: checked_solr6_privs.failed == false
 
-- name: Get Search Service process status
+- name: Get Search Service process status - Solr6
   command: cat /proc/{{ jetty_pid }}/status
   register: solr_proc_status
 
-- name: Set Solr Secret variables
+- name: Set Solr Secret variables - Solr6
   shell: >
     cat -v /proc/{{ jetty_pid }}/environ | 
     sed 's/\^@/\n/g' | 
@@ -71,24 +71,24 @@
   become: true
   become_user: "{{ solr_user }}"
 
-- name: Set Solr Secret facts
+- name: Set Solr Secret facts - Solr6
   set_fact:
     solr_secret_value: "{{ solr_secret_value_env.stdout_lines[0] }}"
 
-- name: Debug - Set Solr Secret variables
+- name: Debug - Set Solr Secret variables - Solr6
   ansible.builtin.debug:
     msg: 
     - solr_secret_value is {{ solr_secret_value }}
   when: activate_debug == true 
 
-- name: Save Search Service process details
+- name: Save Search Service process details - Solr6
   connection: local
   template:
     dest: ../assets/{{ inventory_hostname }}/solr6-{{ jetty_pid }}.proc
     src: proc_detail
     newline_sequence: \r\n
 
-- name: Find Search Service log files
+- name: Find Search Service log files - Solr6
   find:
     paths: "{{ hostvars[inventory_hostname]['solr_log_dir'] }}"
     patterns:
@@ -99,13 +99,13 @@
   become_user: "{{ solr_user }}"
   register: found_solr_logs
 
-- name: Debug - Find Search Service log files
+- name: Debug - Find Search Service log files - Solr6
   ansible.builtin.debug:
     msg: 
     - found_solr_logs is {{ found_solr_logs }}
   when: activate_debug == true 
 
-- name: Archive Search Service log files
+- name: Archive Search Service log files - Solr6
   archive:
     path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
     dest: "{{ hc_tmp }}/solr-log.zip"
@@ -115,14 +115,14 @@
   become_user: "{{ solr_user }}"
   when: found_solr_logs.matched > 0
 
-- name: Fetch archived Search Service log files
+- name: Fetch archived Search Service log files - Solr6
   fetch:
     src: "{{ hc_tmp }}/solr-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
   when: found_solr_logs.matched > 0
 
-- name: Archive Search Service config
+- name: Archive Search Service config - Solr6
   archive:
     dest: "{{ hc_tmp }}/solr-cores-cfg.zip"
     path:
@@ -142,3 +142,33 @@
     flat: yes
   when: solr_home is defined
 
+- name: get Solr server info - Solr6
+  uri:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    return_content: yes
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    validate_certs: no
+    status_code:
+      - 404
+      - 200
+  register: solr_info
+
+- name: Generate Solr SUMMARY report - Solr6
+  get_url:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+
+- name: Fetch Solr SUMMARY report - Solr 6
+  fetch:
+    src: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes

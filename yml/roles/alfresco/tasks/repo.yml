@@ -116,4 +116,5 @@
   ansible.builtin.debug:
     msg: 
       - solr_engine is {{ solr_engine }}
+  when: activate_debug == true
   
