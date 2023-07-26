@@ -4,13 +4,18 @@
     state: directory
     path: "{{ hc_tmp }}"
 
+- name: Install oracle driver
+  command: mvn install:install-file -Dfile={{inventory_dir}}/alfresco-db-queries/lib/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.3 -Dpackaging=jar
+  register: mvn_install_oracle
+
 - name: Compile Alfresco DB Queries tool
   command: mvn -f {{inventory_dir}}/alfresco-db-queries/ clean compile install
   register: mvn_result
 
 - name: Debug - Mvn clean compile install
   ansible.builtin.debug:
-    msg: mvn_result is {{ mvn_result }}
+    msg: 
+    - mvn_result is {{ mvn_result }}
   when: activate_debug == true
 
 - name: Send Alfresco DB queries tool
@@ -30,10 +35,16 @@
 - name: Run the DB queries tool
   command: ./alfresco-db-queries.sh chdir={{ hc_tmp }}
   async: 900
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
   register: alfdbq_run
   notify: Destroy DB queries tool process
+
+- name: Debug - DB queries tool output
+  ansible.builtin.debug:
+    msg: 
+    - alfdbq_run is {{ alfdbq_run }}
+  when: activate_debug == true
 
 - name: Wait for Alfresco-db-queries to be available on port {{ alfresco_db_queries_port }}
   wait_for:

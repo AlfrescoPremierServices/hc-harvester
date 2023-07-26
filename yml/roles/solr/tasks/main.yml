@@ -17,10 +17,12 @@
   loop_control:
     loop_var: outer_loop
     index_var: outer_loop_key
-  when: ps_search_service is defined and ps_search_service.rc == 0
+  when: solr_engine == 'solr6' 
+  #when: ps_search_service is defined and ps_search_service.rc == 0
 
 - include: solr4.yml
-  when: ps_search_service.failed | default(false)
+  when: solr_engine == 'solr4' 
+  #when: ps_search_service.failed | default(false)
 
 - name: get Solr server info
   uri:
