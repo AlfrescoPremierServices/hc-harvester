@@ -60,6 +60,22 @@
   command: cat /proc/{{ jetty_pid }}/status
   register: solr_proc_status
 
+- name: Get Solr secureComms - Solr6
+  shell: >
+    cat -v /proc/{{ jetty_pid }}/environ | 
+    sed 's/\^@/\n/g' | 
+    grep alfresco.secureComms | 
+    awk -e '/-Dalfresco.secureComms=([^-D]*)/ {print $1}' | 
+    awk -F= '{print $3}'
+  register: solr_secureComms_env
+  become: true
+  become_user: "{{ solr_user }}"
+
+- name: Set Solr secureComms - Solr6
+  set_fact:
+    solr_secureComms_value: "{{ solr_secureComms_env.stdout_lines[0] | default('none') }}"
+    solr_secret_value: "nosecret"
+
 - name: Set Solr Secret variables - Solr6
   shell: >
     cat -v /proc/{{ jetty_pid }}/environ | 
@@ -70,10 +86,12 @@
   register: solr_secret_value_env
   become: true
   become_user: "{{ solr_user }}"
+  when: solr_secureComms_value == 'secret'
 
 - name: Set Solr Secret facts - Solr6
   set_fact:
-    solr_secret_value: "{{ solr_secret_value_env.stdout_lines[0] }}"
+    solr_secret_value: "{{ solr_secret_value_env.stdout_lines[0] | default('nosecret') }}"
+  when: solr_secureComms_value == 'secret'
 
 - name: Debug - Set Solr Secret variables - Solr6
   ansible.builtin.debug:
@@ -174,7 +192,7 @@
     flat: yes
 
 - name: Generate Solr Path still to index - Solr6
-  get_url:
+  uri:
     url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?fl=*,[cached]&indent=on&q={!term%20f=int@s_@cascade}1&sort=id%20desc&wt=json"
     headers: 
       X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
@@ -183,6 +201,9 @@
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
     timeout: "{{ solr_summary_report_timeout }}"
     validate_certs: no
+    status_code:
+      - 400
+      - 200
 
 - name: Fetch Solr Path still to index - Solr6
   fetch:
@@ -191,7 +212,7 @@
     flat: yes
 
 - name: Generate Solr still to index Content - Solr6
-  get_url:
+  uri:
     url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?q=*&fl=[cached]LATEST_APPLIED_CONTENT_VERSION_ID,LAST_INCOMING_CONTENT_VERSION_ID&fq={!frange%20l=1%20u=1%20v=$equals}&equals=if(not(eq(LATEST_APPLIED_CONTENT_VERSION_ID,LAST_INCOMING_CONTENT_VERSION_ID)),1,0)&indent=on%20&wt=json"
     headers: 
       X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
@@ -200,6 +221,9 @@
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
     timeout: "{{ solr_summary_report_timeout }}"
     validate_certs: no
+    status_code:
+      - 400
+      - 200
 
 - name: Fetch Solr still to index Content - Solr6
   fetch:
