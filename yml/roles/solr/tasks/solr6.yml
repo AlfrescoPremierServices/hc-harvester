@@ -16,7 +16,7 @@
   become: true
   become_user: "{{ solr_user }}"
   register: checked_solr6_privs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Get Search Service working dir                                                                                                                                                        [80/4910]
   stat:

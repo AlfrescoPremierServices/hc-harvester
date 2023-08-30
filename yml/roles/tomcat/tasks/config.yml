@@ -7,7 +7,7 @@
   become: true
   become_user: "{{tomcat_user }}"
   register: checked_privs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Get Tomcat working dir
   stat:
@@ -81,7 +81,7 @@
     get_attributes: no
     follow: yes
   register: webapp_path
-  ignore_errors: True
+  ignore_errors: true
   become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ tomcat_user }}"
   loop:
