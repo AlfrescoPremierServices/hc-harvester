@@ -1,13 +1,13 @@
 ---
 - name: Get Tomcat log directory config
   shell: grep -E '^[0-9]catalina\.org\.apache\.juli\.(Async)?FileHandler\.directory' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}            
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ tomcat_user }}"
   register: catalina_log_dir_cfg
 
 - name: Get Tomcat log file prefix config
   shell: grep -E '^[0-9]catalina\.org\.apache\.juli\.(Async)?FileHandler\.prefix' {{ outer_loop | regex_replace('.*\ -Djava\.util\.logging\.config\.file=(.*?)(\s+\-.*|\s?(org\.apache\.catalina\.startup\.Bootstrap\ start)?$)' ,'\1') }}               
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ tomcat_user }}"
   register: catalina_log_prefix_cfg
 
@@ -25,7 +25,7 @@
       - "{{ tomcat_out.stat.lnk_target | basename if tomcat_out.skipped | default(false) == false else 'catalina.out' }}"
       - "{{ tomcat_err.stat.lnk_target | basename if tomcat_err.skipped | default(false) == false else 'catalina.out' }}"
     age: "{{ log_history }}"
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ tomcat_user }}"
   register: found_catalina_logs
 

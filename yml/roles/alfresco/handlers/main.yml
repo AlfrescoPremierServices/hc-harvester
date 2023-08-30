@@ -12,6 +12,6 @@
   file:
     state: absent
     path: "{{ contentstore_directory | default(contentstore_dir.stdout_lines[0] | regex_replace('\\${dir.root}',dir_root.stdout_lines[0])) }}/.hc_tmp_dd_perf_file.raw"
-  become: yes
+  become: true
   become_user: "{{ alfresco_user }}"
 
