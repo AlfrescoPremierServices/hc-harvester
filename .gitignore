@@ -3,3 +3,5 @@ assets/
 hc.retry
 .ideal
 alfinventory
+.vscode/
+yml/roles/alfresco/vars/secrets.yml
