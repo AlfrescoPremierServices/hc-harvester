@@ -5,7 +5,7 @@
 - name: Check Privileges
   command: /bin/true
   become: true
-  become_user: "{{tomcat_user }}"
+  become_user: "{{ tomcat_user }}"
   register: checked_privs
   ignore_errors: true
 
@@ -68,16 +68,41 @@
     path: "{{ catalina_base }}/conf/server.xml"
     xpath: /Server/Service/Connector[contains('HTTP/1.1 org.apache.coyote.http11.Http11Protocol org.apache.coyote.http11.Http11NioProtocol org.apache.coyote.http11.Http11AprProtocol', @protocol)]
     content: attribute
-    attribute: port
   register: tomcat_connector
   become: true
   become_user: "{{ tomcat_user }}"
   when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
+- name: Extract Tomcat appBase from server.xml
+  xml:
+    path: "{{ catalina_base }}/conf/server.xml"
+    xpath: /Server/Service/Engine/Host
+    content: attribute
+  register: serverHost
+  become: true
+  become_user: "{{ tomcat_user }}"
+  when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
+
+- set_fact:
+    app_base_value: "{{ serverHost.matches[0].Host.appBase }}"
+
+- name: List Tomcat installed webapps
+  shell: "du -sh {{ app_base_value }}/*"
+  become: true
+  become_user: "{{ tomcat_user }}"
+  register: tomcat_webapps
+
+- name: Print to file Tomcat installed webapps
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/alfresco-{{ tomcat_pid }}.webapps
+    src: webapps_detail
+    newline_sequence: \r\n
+
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
   stat: 
-    path: "{{ catalina_base }}/webapps/{{ item | replace('/','#') }}"
+    path: "{{ app_base_value }}/{{ item | replace('/','#') }}"
     get_attributes: no
     follow: yes
   register: webapp_path
