@@ -38,7 +38,7 @@
   become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
   register: alfext_archive
-  ignore_errors: True
+  ignore_errors: true
   notify: Clean up Alfresco archives
 
 - name: Fetch archived extension root
