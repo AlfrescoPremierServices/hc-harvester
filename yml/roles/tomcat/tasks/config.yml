@@ -68,7 +68,6 @@
     path: "{{ catalina_base }}/conf/server.xml"
     xpath: /Server/Service/Connector[contains('HTTP/1.1 org.apache.coyote.http11.Http11Protocol org.apache.coyote.http11.Http11NioProtocol org.apache.coyote.http11.Http11AprProtocol', @protocol)]
     content: attribute
-    attribute: port
   register: tomcat_connector
   become: true
   become_user: "{{ tomcat_user }}"
