@@ -28,7 +28,7 @@
   become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ share_user }}"
   register: webext_archive
-  ignore_errors: True
+  ignore_errors: true
   notify: Clean up Share archives
 
 - name: Fetch archived extension root
