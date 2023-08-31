@@ -96,7 +96,7 @@
     alfresco_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
     alfresco_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     alfresco_user: "{{ tomcat_user }}"
-    alfresco_shared_loader: "{% if alfresco_shared_loader is defined %}{{ alfresco_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
+    alfresco_shared_loader: "{% if alfresco_shared_loader is defined %}{{ alfresco_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
     alfresco_java: "{{ java_bin }}"
   when: webapp_path.results[0].stat.exists == True
 
@@ -106,7 +106,7 @@
     share_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
     share_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     share_user: "{{ tomcat_user }}"
-    share_shared_loader: "{% if share_shared_loader is defined %}{{ share_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
+    share_shared_loader: "{% if share_shared_loader is defined %}{{ share_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
     share_java: "{{ java_bin }}"
   when: webapp_path.results[1].stat.exists == True
 

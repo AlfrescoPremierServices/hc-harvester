@@ -10,7 +10,7 @@
 
 - name: Build the archive dict
   set_fact:
-    gc_log_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_gc_logs.files | map(attribute='path') | list }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}-{{ tomcat_pid }}-GClog.zip" } ]
+    gc_log_dict: [ { user: "{{ tomcat_user }}", logfiles: "{{ found_gc_logs.files | map(attribute='path') | list }}", archive: "{{ hc_tmp }}/{{ webapp_server_product }}-{{ tomcat_pid }}-GClog.zip" } ]
   when: found_gc_logs.matched > 0
 
 - name: Add GC log files to the list of assets to archive
