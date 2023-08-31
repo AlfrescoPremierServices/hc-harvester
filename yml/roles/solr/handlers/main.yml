@@ -3,6 +3,6 @@
   file:
     state: absent
     path: "{{ solr_data_dirs.stdout_lines | join('/') }}/.hc_tmp_dd_perf_file.raw"
-  become: yes
+  become: true
   become_user: "{{ solr_user }}"
 
