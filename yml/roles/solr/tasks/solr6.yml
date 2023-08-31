@@ -137,3 +137,73 @@
     flat: yes
   when: solr_home is defined
 
+- name: get Solr server info - Solr6
+  uri:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/info/system?wt=json"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    return_content: yes
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    validate_certs: no
+    status_code:
+      - 404
+      - 200
+  register: solr_info
+
+- name: Generate Solr SUMMARY report - Solr6
+  get_url:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/admin/cores?action=SUMMARY&wt=xml"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    dest: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+
+- name: Fetch Solr SUMMARY report - Solr 6
+  fetch:
+    src: "{{ hc_tmp }}/solr-SUMMARY-{{ inventory_hostname }}.xml"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+
+- name: Generate Solr Path still to index - Solr6
+  uri:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?fl=*,[cached]&indent=on&q={!term%20f=int@s_@cascade}1&sort=id%20desc&wt=json"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    dest: "{{ hc_tmp }}/solr-PATH-STILL-TO-INDEX-{{ inventory_hostname }}.json"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+    status_code:
+      - 400
+      - 200
+
+- name: Fetch Solr Path still to index - Solr6
+  fetch:
+    src: "{{ hc_tmp }}/solr-PATH-STILL-TO-INDEX-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+
+- name: Generate Solr still to index Content - Solr6
+  uri:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?q=*&fl=[cached]LATEST_APPLIED_CONTENT_VERSION_ID,LAST_INCOMING_CONTENT_VERSION_ID&fq={!frange%20l=1%20u=1%20v=$equals}&equals=if(not(eq(LATEST_APPLIED_CONTENT_VERSION_ID,LAST_INCOMING_CONTENT_VERSION_ID)),1,0)&indent=on%20&wt=json"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    dest: "{{ hc_tmp }}/solr-FTS-STILL-TO-INDEX-{{ inventory_hostname }}.json"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+    status_code:
+      - 400
+      - 200
+
+- name: Fetch Solr still to index Content - Solr6
+  fetch:
+    src: "{{ hc_tmp }}/solr-FTS-STILL-TO-INDEX-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes    
