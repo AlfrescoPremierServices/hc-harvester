@@ -86,6 +86,20 @@
 
 - set_fact:
     app_base_value: "{{ serverHost.matches[0].Host.appBase }}"
+
+- name: List Tomcat installed webapps
+  shell: "du -sh {{ app_base_value }}/*"
+  become: true
+  become_user: "{{ tomcat_user }}"
+  register: tomcat_webapps
+
+- name: Print to file Tomcat installed webapps
+  connection: local
+  template:
+    dest: ../assets/{{ inventory_hostname }}/alfresco-{{ tomcat_pid }}.webapps
+    src: webapps_detail
+    newline_sequence: \r\n
+
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
   stat: 
