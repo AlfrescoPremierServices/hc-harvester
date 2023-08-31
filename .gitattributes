@@ -1,0 +1,6 @@
+# Shell scripts require LF
+*.sh text eol=lf
+Dockerfile text eol=lf
+
+# Copying settings from alfresco-ansible-deployment
+text eol=lf
