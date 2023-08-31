@@ -4,7 +4,7 @@
 
 - name: Check Privileges
   command: /bin/true
-  become: yes
+  become: true
   become_user: "{{tomcat_user }}"
   register: checked_privs
   ignore_errors: yes
@@ -16,7 +16,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_cwd
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -27,7 +27,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_out
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -38,7 +38,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_err
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -55,7 +55,7 @@
 - name: Get Tomcat process Environment
   shell: cat -v /proc/{{ tomcat_pid }}/environ | sed 's/\^@/\n/g'
   register: tomcat_proc_environ
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -70,7 +70,7 @@
     content: attribute
     attribute: port
   register: tomcat_connector
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
@@ -82,7 +82,7 @@
     follow: yes
   register: webapp_path
   ignore_errors: True
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ tomcat_user }}"
   loop:
     - "{{ alfresco_context }}"

@@ -5,7 +5,7 @@
     path: "{{ item.logfiles }}"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ item.user }}"
   with_items:
     - "{{ to_archive }}"
