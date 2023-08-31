@@ -1,24 +1,25 @@
 ---
-- name: Set Search Service variables
+- name: Set Search Service variables - Solr6
   include_vars: solr6_args.yml
 
-- name: Set Search Service facts
+- name: Set Search Service facts - Solr6
   set_fact:
     solr_context: solr
     solr_user: "{{ jetty_user }}"
     solr_home: "{{ solr_home | default(jetty_solr_home[0]) }}"
     solr_scheme: "{{ jetty_scheme[0] }}"
     solr_port: "{{ jetty_ssl_port[0] | default(jetty_port[0]) if jetty_scheme == 'https' else jetty_port[0] }}"
-    solr_log_dir: "{{ jetty_home[0] }}/{{ solr_log_dir[0] }}"
+    #solr_log_dir: "{{ jetty_home[0] }}/{{ solr_log_dir[0] }}"
+    solr_log_dir: "{{ solr_log_dir[0] }}"
 
-- name: Check Search Service Privileges
+- name: Check Search Service Privileges - Solr6
   command: /bin/true
   become: yes
   become_user: "{{ solr_user }}"
   register: checked_solr6_privs
   ignore_errors: yes
 
-- name: Get Search Service working dir                                                                                                                                                        [80/4910]
+- name: Get Search Service working dir - Solr6                                                                                                                                                 [80/4910]
   stat:
     path: /proc/{{ jetty_pid }}/cwd
     get_attributes: no
@@ -29,33 +30,66 @@
   become_user: "{{ solr_user }}"
   when: checked_solr6_privs.failed == false
 
-- name:  Get Search Service process file limits
+- name:  Get Search Service process file limits - Solr6
   command: cat /proc/{{ jetty_pid }}/limits
   register: solr_proc_limits 
 
-- name: Get Search Service process command line
+- name: Get Search Service process command line - Solr6
   shell: cat -v /proc/{{ jetty_pid }}/cmdline | sed 's/\^@/\n /g'
   register: solr_proc_cmdline
 
-- name: Get Search Service process Environment
+- name: Get Search Service process Environment - Solr6
   shell: cat -v /proc/{{ jetty_pid }}/environ | sed 's/\^@/\n/g'
   register: solr_proc_environ
   become: yes
   become_user: "{{ solr_user }}"
   when: checked_solr6_privs.failed == false
 
-- name: Get Search Service process status
+- name: Get Search Service process status - Solr6
   command: cat /proc/{{ jetty_pid }}/status
   register: solr_proc_status
 
-- name: Save Search Service process details
+- name: Get Solr secureComms - Solr6
+  shell: >
+    cat -v /proc/{{ jetty_pid }}/environ | 
+    sed 's/\^@/\n/g' | 
+    grep alfresco.secureComms | 
+    awk -e '/-Dalfresco.secureComms=([^-D]*)/ {print $1}' | 
+    awk -F= '{print $3}'
+  register: solr_secureComms_env
+  become: true
+  become_user: "{{ solr_user }}"
+
+- name: Set Solr secureComms - Solr6
+  set_fact:
+    solr_secureComms_value: "{{ solr_secureComms_env.stdout_lines[0] | default('none') }}"
+    solr_secret_value: "nosecret"
+
+- name: Set Solr Secret variables - Solr6
+  shell: >
+    cat -v /proc/{{ jetty_pid }}/environ | 
+    sed 's/\^@/\n/g' | 
+    grep alfresco.secureComms.secret | 
+    awk -e '/-Dalfresco.secureComms.secret=([^-D]*)/ {print $1}' | 
+    awk -F= '{print $3}'
+  register: solr_secret_value_env
+  become: true
+  become_user: "{{ solr_user }}"
+  when: solr_secureComms_value == 'secret'
+
+- name: Set Solr Secret facts - Solr6
+  set_fact:
+    solr_secret_value: "{{ solr_secret_value_env.stdout_lines[0] | default('nosecret') }}"
+  when: solr_secureComms_value == 'secret'
+
+- name: Save Search Service process details - Solr6
   connection: local
   template:
     dest: ../assets/{{ inventory_hostname }}/solr6-{{ jetty_pid }}.proc
     src: proc_detail
     newline_sequence: \r\n
 
-- name: Find Search Service log files
+- name: Find Search Service log files - Solr6
   find:
     paths: "{{ hostvars[inventory_hostname]['solr_log_dir'] }}"
     patterns:
@@ -66,7 +100,7 @@
   become_user: "{{ solr_user }}"
   register: found_solr_logs
 
-- name: Archive Search Service log files
+- name: Archive Search Service log files - Solr6
   archive:
     path: "{{ found_solr_logs.files | map(attribute='path') | list }}"
     dest: "{{ hc_tmp }}/solr-log.zip"
@@ -76,14 +110,14 @@
   become_user: "{{ solr_user }}"
   when: found_solr_logs.matched > 0
 
-- name: Fetch archived Search Service log files
+- name: Fetch archived Search Service log files - Solr6
   fetch:
     src: "{{ hc_tmp }}/solr-log.zip"
     dest: ../assets/{{ inventory_hostname }}/logs/
     flat: yes
   when: found_solr_logs.matched > 0
 
-- name: Archive Search Service config
+- name: Archive Search Service config - Solr6
   archive:
     dest: "{{ hc_tmp }}/solr-cores-cfg.zip"
     path:
