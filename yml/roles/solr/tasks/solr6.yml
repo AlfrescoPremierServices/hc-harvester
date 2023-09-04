@@ -49,39 +49,6 @@
   command: cat /proc/{{ jetty_pid }}/status
   register: solr_proc_status
 
-- name: Get Solr secureComms - Solr6
-  shell: >
-    cat -v /proc/{{ jetty_pid }}/environ | 
-    sed 's/\^@/\n/g' | 
-    grep alfresco.secureComms | 
-    awk -e '/-Dalfresco.secureComms=([^-D]*)/ {print $1}' | 
-    awk -F= '{print $3}'
-  register: solr_secureComms_env
-  become: true
-  become_user: "{{ solr_user }}"
-
-- name: Set Solr secureComms - Solr6
-  set_fact:
-    solr_secureComms_value: "{{ solr_secureComms_env.stdout_lines[0] | default('none') }}"
-    solr_secret_value: "nosecret"
-
-- name: Set Solr Secret variables - Solr6
-  shell: >
-    cat -v /proc/{{ jetty_pid }}/environ | 
-    sed 's/\^@/\n/g' | 
-    grep alfresco.secureComms.secret | 
-    awk -e '/-Dalfresco.secureComms.secret=([^-D]*)/ {print $1}' | 
-    awk -F= '{print $3}'
-  register: solr_secret_value_env
-  become: true
-  become_user: "{{ solr_user }}"
-  when: solr_secureComms_value == 'secret'
-
-- name: Set Solr Secret facts - Solr6
-  set_fact:
-    solr_secret_value: "{{ solr_secret_value_env.stdout_lines[0] | default('nosecret') }}"
-  when: solr_secureComms_value == 'secret'
-
 - name: Save Search Service process details - Solr6
   connection: local
   template:
