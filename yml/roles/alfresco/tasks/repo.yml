@@ -107,7 +107,11 @@
   register: jmx_params
   with_items:
     - /Alfresco:Type=Configuration,Category=Search,id1=manager/ { getline; getline; if ($0 ~ /^sourceBeanName/) print $2}
+    - /solr.secureComms/ { print $2 }
+    - /solr.sharedSecret/ { print $2 }
 
 - name: Set search variables from JmxDump
   set_fact:
     solr_engine: "{{ jmx_params.results[0].stdout_lines[0] }}"
+    solr_secureComms_value: "{{ jmx_params.results[1].stdout_lines[0] }}"
+    solr_secret_value: "{{ jmx_params.results[2].stdout_lines[0] }}"
