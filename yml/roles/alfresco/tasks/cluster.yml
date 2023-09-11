@@ -3,7 +3,7 @@
   uri:
     url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test"
     force_basic_auth: yes
-    url_username: "{{ alfresco_admin_user }}"
+    url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
     validate_certs: no
   register: csrf_req
@@ -14,7 +14,7 @@
     url: "{{ alfresco_scheme }}://localhost:{{ alfresco_port }}/{{ alfresco_context }}/s/enterprise/admin/admin-clustering-test"
     method: POST
     force_basic_auth: yes
-    url_username: "{{ alfresco_admin_user }}"
+    url_username: "{{ alfresco_admin_user }}"
     url_password: "{{ alfresco_admin_password }}"
     validate_certs: no
     headers: 

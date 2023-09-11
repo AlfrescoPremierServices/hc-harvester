@@ -1,6 +1,6 @@
 ---
 - name: Destroy DB queries tool process
   command: kill -9 {{ alfdbq_run.stdout_lines[0] }}
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
 

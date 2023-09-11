@@ -9,7 +9,7 @@
 - name: Alfresco index core write performance
   command: dd if=/dev/zero of={{ solr_data_dirs.stdout_lines | join ('/') }}/.hc_tmp_dd_perf_file.raw bs=64k count={{ (tmp_perf_mb | default(1024) * 1024 / 64)|int }} oflag={{ item }}
   register: dd_write_fs
-  become: yes
+  become: true
   become_user: "{{ solr_user }}"
   with_items:
     - nonblock
@@ -19,7 +19,7 @@
 - name: Alfresco index core read performance
   command: dd if={{ solr_data_dirs.stdout_lines | join ('/') }}/.hc_tmp_dd_perf_file.raw of=/dev/null bs=64k iflag={{ item }}
   register: dd_read_fs
-  become: yes
+  become: true
   become_user: "{{ solr_user }}"
   with_items:
     - nonblock

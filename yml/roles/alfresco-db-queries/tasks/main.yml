@@ -21,7 +21,7 @@
 - name: Run the DB queries tool
   command: ./alfresco-db-queries.sh chdir={{ hc_tmp }}
   async: 900
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
   register: alfdbq_run
   notify: Destroy DB queries tool process

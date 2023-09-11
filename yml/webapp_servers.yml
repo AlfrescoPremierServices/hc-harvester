@@ -6,7 +6,7 @@
     - name: Is Tomcat the webapp server?
       shell: ps -o pid,user,cmd -C java | grep 'org.apache.catalina.startup.Bootstrap'
       register: ps_tomcat
-      ignore_errors: True
+      ignore_errors: true
       when: ansible_system == 'Linux'
 
     - name: Initialize tomcat facts

@@ -13,7 +13,7 @@
     - "{{ solr_client_key | default('solrclient_key') }}"
 
 - include: solr6.yml
-  loop: "{{ ps_search_service.stdout_lines }}"
+  loop: "{{ ps_search_service.stdout_lines }}"
   loop_control:
     loop_var: outer_loop
     index_var: outer_loop_key
