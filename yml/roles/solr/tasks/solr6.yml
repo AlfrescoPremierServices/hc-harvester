@@ -13,10 +13,10 @@
 
 - name: Check Search Service Privileges
   command: /bin/true
-  become: yes
+  become: true
   become_user: "{{ solr_user }}"
   register: checked_solr6_privs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Get Search Service working dir                                                                                                                                                        [80/4910]
   stat:
@@ -25,7 +25,7 @@
     get_checksum: no
     get_mime: no
   register: solr_cwd
-  become: yes
+  become: true
   become_user: "{{ solr_user }}"
   when: checked_solr6_privs.failed == false
 
@@ -40,7 +40,7 @@
 - name: Get Search Service process Environment
   shell: cat -v /proc/{{ jetty_pid }}/environ | sed 's/\^@/\n/g'
   register: solr_proc_environ
-  become: yes
+  become: true
   become_user: "{{ solr_user }}"
   when: checked_solr6_privs.failed == false
 
@@ -62,7 +62,7 @@
       - solr.log*
       - "{{ gc_log_pattern | basename }}*"
     age: "{{ log_history }}"
-  become: "{{ 'yes' if checked_solr6_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_solr6_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   register: found_solr_logs
 
@@ -72,7 +72,7 @@
     dest: "{{ hc_tmp }}/solr-log.zip"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_solr6_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_solr6_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   when: found_solr_logs.matched > 0
 
@@ -92,7 +92,7 @@
       - "{{ solr_home }}/archive/conf/"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_solr6_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_solr6_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   when: solr_home is defined
 

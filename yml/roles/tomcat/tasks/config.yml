@@ -4,10 +4,10 @@
 
 - name: Check Privileges
   command: /bin/true
-  become: yes
+  become: true
   become_user: "{{tomcat_user }}"
   register: checked_privs
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Get Tomcat working dir
   stat:
@@ -16,7 +16,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_cwd
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -27,7 +27,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_out
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -38,7 +38,7 @@
     get_checksum: no
     get_mime: no
   register: tomcat_err
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -55,7 +55,7 @@
 - name: Get Tomcat process Environment
   shell: cat -v /proc/{{ tomcat_pid }}/environ | sed 's/\^@/\n/g'
   register: tomcat_proc_environ
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: checked_privs.failed == false
 
@@ -69,7 +69,7 @@
     xpath: /Server/Service/Connector[contains('HTTP/1.1 org.apache.coyote.http11.Http11Protocol org.apache.coyote.http11.Http11NioProtocol org.apache.coyote.http11.Http11AprProtocol', @protocol)]
     content: attribute
   register: tomcat_connector
-  become: yes
+  become: true
   become_user: "{{ tomcat_user }}"
   when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
@@ -93,8 +93,8 @@
     get_attributes: no
     follow: yes
   register: webapp_path
-  ignore_errors: True
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  ignore_errors: true
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ tomcat_user }}"
   loop:
     - "{{ alfresco_context }}"
@@ -108,7 +108,7 @@
     alfresco_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
     alfresco_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     alfresco_user: "{{ tomcat_user }}"
-    alfresco_shared_loader: "{% if alfresco_shared_loader is defined %}{{ alfresco_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
+    alfresco_shared_loader: "{% if alfresco_shared_loader is defined %}{{ alfresco_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
     alfresco_java: "{{ java_bin }}"
   when: webapp_path.results[0].stat.exists == True
 
@@ -118,7 +118,7 @@
     share_base: "{{ catalina_base | default('/usr/share/tomcat') }}"
     share_cwd: "{{ tomcat_cwd.stat.lnk_target if tomcat_cwd.skipped | default(false) == false else catalina_base }}"
     share_user: "{{ tomcat_user }}"
-    share_shared_loader: "{% if share_shared_loader is defined %}{{ share_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
+    share_shared_loader: "{% if share_shared_loader is defined %}{{ share_shared_loader }}{% else %}{{ catalina_base | default('/usr/share/tomcat') }}/shared/classes{% endif %}"
     share_java: "{{ java_bin }}"
   when: webapp_path.results[1].stat.exists == True
 

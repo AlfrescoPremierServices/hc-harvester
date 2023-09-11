@@ -14,7 +14,7 @@
     paths: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default(alfresco_cwd + '/placeholder' ) | dirname }}"
     patterns: "{{ hostvars[inventory_hostname]['alfresco_log_pattern'] | default('alfresco.log*') | basename }}"
     age: "{{ log_history }}"
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
   register: found_alfresco_logs
 
@@ -24,21 +24,21 @@
     dest: "{{ hc_tmp }}/alfresco-log.zip"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
   when: found_alfresco_logs.matched > 0
   notify: Clean up Alfresco archives
 
 - name: Archive extension directory
   archive:
-    path: "{{ alfresco_shared_loader }}/alfresco/extension"
+    path: "{{ alfresco_shared_loader }}/alfresco/extension"
     dest: "{{ hc_tmp }}/alfresco-extension.zip"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ alfresco_user }}"
   register: alfext_archive
-  ignore_errors: True
+  ignore_errors: true
   notify: Clean up Alfresco archives
 
 - name: Fetch archived extension root
