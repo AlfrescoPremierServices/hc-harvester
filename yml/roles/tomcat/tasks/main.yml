@@ -15,7 +15,7 @@
      to_archive: []
 
 - include: config.yml
-  loop: "{{ ps_tomcat.stdout_lines }}"
+  loop: "{{ ps_tomcat.stdout_lines }}"
   loop_control:
     loop_var: outer_loop
     index_var: outer_loop_key

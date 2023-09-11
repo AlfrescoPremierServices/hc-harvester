@@ -4,7 +4,7 @@
     paths: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default(solr_cwd + '/placeholder' ) | dirname }}"
     patterns: "{{ hostvars[inventory_hostname]['solr_log_pattern'] | default('solr.log*') | basename }}"
     age: "{{ log_history }}"
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   register: found_solr_logs
 
@@ -14,7 +14,7 @@
     dest: "{{ hc_tmp }}/solr-log.zip"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   when: found_solr_logs.matched > 0
 
@@ -32,7 +32,7 @@
     content: attribute
     attribute: value
   register: solr_home_attr
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   when: hostvars[inventory_hostname]['solr_home'] is undefined
 
@@ -44,7 +44,7 @@
       - "{% if hostvars[inventory_hostname]['solr_home'] is defined %}{{ hostvars[inventory_hostname]['solr_home'] }}{% else %}{% if solr_home_attr.matches[0].Environment.value[0] != '/' %}{{ solr_cwd }}/{% endif %}{{ solr_home_attr.matches[0].Environment.value }}{% endif %}/archive-SpacesStore/conf/"
     mode: 0644
     format: zip
-  become: "{{ 'yes' if checked_privs.failed == false else 'no' }}"
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
   become_user: "{{ solr_user }}"
   when: solr_home_attr.failed | default(false) == false or solr_home_attr.skipped | default(false) == true 
 

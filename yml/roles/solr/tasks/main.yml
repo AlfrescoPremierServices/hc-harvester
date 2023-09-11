@@ -14,7 +14,7 @@
   when: solr_engine == 'solr6' or solr_engine == 'solr4' 
 
 - include: solr6.yml
-  loop: "{{ ps_search_service.stdout_lines }}"
+  loop: "{{ ps_search_service.stdout_lines }}"
   loop_control:
     loop_var: outer_loop
     index_var: outer_loop_key
