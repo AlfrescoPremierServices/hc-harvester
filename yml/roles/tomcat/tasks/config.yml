@@ -86,6 +86,23 @@
 
 - set_fact:
     app_base_value: "{{ serverHost.matches[0].Host.appBase }}"
+
+## Sometimes the appBase is a relative path, so calculating it
+- name: Check is appBase is correct
+  stat:
+    path: {{ app_base_value }}
+  register: app_base_value_exists
+
+- set_fact:
+    app_base_value: "{{ catalina_base }}/{{ app_base_value }}"
+  when: not app_base_value_exists.stats.exists
+
+- name: Check is appBase is correct
+  stat:
+    path: {{ app_base_value }}
+  register: app_base_value_exists_relative
+  when: not app_base_value_exists.stats.exists
+
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
   stat: 
