@@ -4,6 +4,15 @@
     state: directory
     path: "{{ hc_tmp }}"
 
+- name: Install oracle driver
+  command: mvn install:install-file -Dfile={{inventory_dir}}/alfresco-db-queries/lib/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.3 -Dpackaging=jar
+  register: mvn_install_oracle
+
+# Compile only on the control node
+- name: Compile Alfresco DB Queries tool
+  local_action: command mvn -f {{inventory_dir}}/alfresco-db-queries/ clean compile install
+  register: mvn_result
+
 - name: Send Alfresco DB queries tool
   copy:
     src: "{{lookup('first_found', jarloc)}}"
