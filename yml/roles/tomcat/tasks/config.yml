@@ -148,5 +148,5 @@
   when: catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
 
 - include: gc_log.yml
-  when: outer_loop.find('-Xloggc') != -1 and catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
+  when: outer_loop.find('-Xlog:gc') != -1 and catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
 
