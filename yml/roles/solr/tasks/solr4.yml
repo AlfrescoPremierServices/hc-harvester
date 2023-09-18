@@ -84,7 +84,7 @@
 - name: Generate Solr Archived Content - Solr4
   get_url: 
     url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/archive/afts?facet.range.end=NOW-2DAY&facet.range.gap=%2B1DAY&facet.range.start=NOW-2YEAR&facet.range=sys:archivedDate&facet=true&indent=on&q=*&rows=0&wt=json"
-    dest: "{{ hc_tmp }}/solr-Archived-{{ inventory_hostname }}.xml"
+    dest: "{{ hc_tmp }}/solr-Archived-{{ inventory_hostname }}.json"
     client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
     client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
     timeout: "{{ solr_summary_report_timeout }}"
@@ -92,6 +92,36 @@
 
 - name: Fetch Solr Archived Content - Solr4
   fetch:
-    src: "{{ hc_tmp }}/solr-Archived-{{ inventory_hostname }}.xml"
+    src: "{{ hc_tmp }}/solr-Archived-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+
+- name: Generate Solr Alfresco Pivot report - Solr4
+  get_url: 
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?facet.pivot={!stats=piv1}TYPE&facet=on&indent=on&q=*&rows=0&stats.field={!tag=piv1%20sum=on%20count=on}cm:content.size&stats=on&wt=json"
+    dest: "{{ hc_tmp }}/solr-Alfresco-Pivot-{{ inventory_hostname }}.json"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+
+- name: Fetch Solr Archived Content - Solr4
+  fetch:
+    src: "{{ hc_tmp }}/solr-Alfresco-Pivot-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+
+- name: Generate Solr Archived Content - Solr4
+  get_url: 
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/archive/select?facet.pivot={!stats=piv1}TYPE&facet=on&indent=on&q=*&rows=0&stats.field={!tag=piv1%20sum=on%20count=on}cm:content.size&stats=on&wt=json"
+    dest: "{{ hc_tmp }}/solr-Archive-Pivot-{{ inventory_hostname }}.json"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+
+- name: Fetch Solr Archived Content - Solr4
+  fetch:
+    src: "{{ hc_tmp }}/solr-Archive-Pivot-{{ inventory_hostname }}.json"
     dest: ../assets/{{ inventory_hostname }}/
     flat: yes
