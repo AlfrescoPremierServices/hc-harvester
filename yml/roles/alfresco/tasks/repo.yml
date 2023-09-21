@@ -101,7 +101,7 @@
 
 - name: Get Transformer values from JmxDump
   connection: local
-  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | awk '{{item}}'
+  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | awk '{{item}}' | sed 's/\/*$//g'
   args:
     warn: false
   register: jmx_params
@@ -120,7 +120,7 @@
 
 - name: Get Local Transformer (Core-AIO) configuration
   uri:
-    url: "{{ local_core_aio_url }}transform/config?configVersion=5555"
+    url: "{{ local_core_aio_url }}/transform/config?configVersion=5555"
     dest: "{{ hc_tmp }}/Transformer-Local-{{ inventory_hostname }}.json"
     status_code:
       - 400
