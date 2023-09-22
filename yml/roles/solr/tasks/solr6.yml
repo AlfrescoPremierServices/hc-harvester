@@ -234,3 +234,23 @@
     src: "{{ hc_tmp }}/solr-Archive-Pivot-{{ inventory_hostname }}.json"
     dest: ../assets/{{ inventory_hostname }}/
     flat: yes
+
+- name: Generate Solr Site last modified - Solr6
+  uri:
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/archive/select?q=*&wt=json&rows=0&facet=true&facet.pivot={!stats=piv1}SITE&stats=on&stats.field={!tag=piv1%20max=true}cm:modified"
+    headers: 
+      X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
+    dest: "{{ hc_tmp }}/solr-SiteLastModified-Pivot-{{ inventory_hostname }}.json"
+    client_cert: "{{ hc_tmp }}/{{ solr_client_cert | default('solrclient_crt') }}"
+    client_key: "{{ hc_tmp }}/{{ solr_client_key | default('solrclient_key') }}"
+    timeout: "{{ solr_summary_report_timeout }}"
+    validate_certs: no
+    status_code:
+      - 400
+      - 200
+
+- name: Fetch Solr Site last modified - Solr6
+  fetch:
+    src: "{{ hc_tmp }}/solr-SiteLastModified-Pivot-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes    
