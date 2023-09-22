@@ -237,7 +237,7 @@
 
 - name: Generate Solr Site last modified - Solr6
   uri:
-    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?q=*&wt=json&rows=0&facet=true&facet.pivot={!stats=piv1}SITE&stats=on&stats.field={!tag=piv1%20max=true}cm:modified"
+    url: "{{ solr_scheme }}://localhost:{{ solr_port }}/{{ solr_context }}/alfresco/select?q=*&wt=json&rows=0&facet=true&facet.pivot={!stats=piv1}SITE&stats=on&stats.field={!tag=piv1%20max=true}cm:modified&facet.limit=20000"
     headers: 
       X-Alfresco-Search-Secret: "{{ solr_secret_value }}"
     dest: "{{ hc_tmp }}/solr-SiteLastModified-Pivot-{{ inventory_hostname }}.json"
