@@ -120,7 +120,7 @@
 
 - name: Get Local Transformer (Core-AIO) configuration
   uri:
-    url: "{{ local_core_aio_url }}/transform/config?configVersion=5555"
+    url: "{{ local_core_aio_url }}/transform/config"
     dest: "{{ hc_tmp }}/Transformer-Local-{{ inventory_hostname }}.json"
     status_code:
       - 400
@@ -136,7 +136,7 @@
 
 - name: Get T-Router Transformer (Core-AIO) configuration
   uri:
-    url: "{{ remote_t_router_url }}/transform/config?configVersion=5555"
+    url: "{{ remote_t_router_url }}/transform/config"
     dest: "{{ hc_tmp }}/Transformer-T-Router-config-{{ inventory_hostname }}.json"
     status_code:
       - 400
