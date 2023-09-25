@@ -99,3 +99,53 @@
     flat: yes
   when: checked_privs.failed == false and s3_props.stdout_lines | length == 0
 
+- name: Get Transformer values from JmxDump
+  connection: local
+  shell: unzip -p ../assets/{{ inventory_hostname }}/conf/jmxdump-{{ inventory_hostname }}.zip | awk '{{item}}' | sed 's/\/*$//g'
+  args:
+    warn: false
+  register: jmx_params
+  with_items:
+    - /^local.transform.service.enabled/ { print $2 }
+    - /^localTransform.core-aio.url/ { print $2 }
+    - /^transform.service.enabled/ { print $2 }
+    - /^transform.service.url/ { print $2 }
+
+- name: Set Transformer variables from JmxDump
+  set_fact:
+    local_transform_enabled: "{{ jmx_params.results[0].stdout_lines[0] }}"
+    local_core_aio_url: "{{ jmx_params.results[1].stdout_lines[0] }}"
+    remote_transform_enabled: "{{ jmx_params.results[2].stdout_lines[0] }}"
+    remote_t_router_url: "{{ jmx_params.results[3].stdout_lines[0] }}"
+
+- name: Get Local Transformer (Core-AIO) configuration
+  uri:
+    url: "{{ local_core_aio_url }}/transform/config"
+    dest: "{{ hc_tmp }}/Transformer-Local-{{ inventory_hostname }}.json"
+    status_code:
+      - 400
+      - 200
+  when: local_transform_enabled == true
+
+- name: Fetch Local Transformer (Core-AIO) configuration
+  fetch:
+    src: "{{ hc_tmp }}/Transformer-Local-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+  when: local_transform_enabled == true
+
+- name: Get T-Router Transformer (Core-AIO) configuration
+  uri:
+    url: "{{ remote_t_router_url }}/transform/config"
+    dest: "{{ hc_tmp }}/Transformer-T-Router-config-{{ inventory_hostname }}.json"
+    status_code:
+      - 400
+      - 200
+  when: remote_transform_enabled == true
+
+- name: Fetch T-Router Transformer (Core-AIO) configuration
+  fetch:
+    src: "{{ hc_tmp }}/Transformer-T-Router-config-{{ inventory_hostname }}.json"
+    dest: ../assets/{{ inventory_hostname }}/
+    flat: yes
+  when: remote_transform_enabled == true
