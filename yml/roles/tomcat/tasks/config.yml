@@ -81,13 +81,12 @@
   register: serverHost
   become: true
   become_user: "{{ tomcat_user }}"
-  when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
 - set_fact:
     app_base_value: "{{ serverHost.matches[0].Host.appBase }}"
 
 ## Sometimes the appBase is a relative path, so calculating it
-- name: Check is appBase is correct
+- name: Check if appBase exists as absolute path
   stat:
     path: "{{ app_base_value }}"
     get_attributes: no
@@ -100,7 +99,7 @@
     app_base_value: "{{ catalina_base }}/{{ app_base_value }}"
   when: not app_base_value_exists.stat.exists
 
-- name: Check is appBase is correct
+- name: Check if appBase exists as relative path to catalina_base
   stat:
     path: "{{ app_base_value }}"
     get_attributes: no
