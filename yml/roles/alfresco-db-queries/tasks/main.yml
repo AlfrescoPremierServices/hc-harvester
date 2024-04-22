@@ -4,6 +4,15 @@
     state: directory
     path: "{{ hc_tmp }}"
 
+- name: Install oracle driver
+  command: mvn install:install-file -Dfile={{inventory_dir}}/alfresco-db-queries/lib/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.3 -Dpackaging=jar
+  register: mvn_install_oracle
+
+# Compile only on the control node
+- name: Compile Alfresco DB Queries tool
+  local_action: command mvn -f {{inventory_dir}}/alfresco-db-queries/ clean compile install
+  register: mvn_result
+
 - name: Send Alfresco DB queries tool
   copy:
     src: "{{lookup('first_found', jarloc)}}"
@@ -38,9 +47,15 @@
     url: http://localhost:{{ alfresco_db_queries_port }}/report
     timeout: "{{ db_queries_report_timeout }}"
 
+- name: Zip Alfresco-db-queries files
+  become: true
+  archive:
+    path: "{{ hc_tmp }}/acs-db-report*"
+    dest: "{{ hc_tmp }}/alfresco-db-reports.zip"
+    format: zip
+
 - name: Fetch DB queries report
   fetch:
-    src: "{{ hc_tmp }}/acs-db-report.csv"
+    src: "{{ hc_tmp }}/alfresco-db-reports.zip"
     dest: ../assets/
     flat: yes
-
