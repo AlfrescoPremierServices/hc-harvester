@@ -68,16 +68,51 @@
     path: "{{ catalina_base }}/conf/server.xml"
     xpath: /Server/Service/Connector[contains('HTTP/1.1 org.apache.coyote.http11.Http11Protocol org.apache.coyote.http11.Http11NioProtocol org.apache.coyote.http11.Http11AprProtocol', @protocol)]
     content: attribute
-    attribute: port
   register: tomcat_connector
   become: true
   become_user: "{{ tomcat_user }}"
   when: hostvars[inventory_hostname]['webapp_server_port'] is undefined or hostvars[inventory_hostname]['webapp_server_scheme'] is undefined
 
+- name: Extract Tomcat appBase from server.xml
+  xml:
+    path: "{{ catalina_base }}/conf/server.xml"
+    xpath: /Server/Service/Engine/Host
+    content: attribute
+  register: serverHost
+  become: true
+  become_user: "{{ tomcat_user }}"
+
+- set_fact:
+    app_base_value: "{{ serverHost.matches[0].Host.appBase }}"
+
+## Sometimes the appBase is a relative path, so calculating it
+- name: Check if appBase exists as absolute path
+  stat:
+    path: "{{ app_base_value }}"
+    get_attributes: no
+    follow: yes
+  register: app_base_value_exists
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
+  become_user: "{{ tomcat_user }}"
+
+- set_fact:
+    app_base_value: "{{ catalina_base }}/{{ app_base_value }}"
+  when: not app_base_value_exists.stat.exists
+
+- name: Check if appBase exists as relative path to catalina_base
+  stat:
+    path: "{{ app_base_value }}"
+    get_attributes: no
+    follow: yes
+  register: app_base_value_exists_relative
+  when: not app_base_value_exists.stat.exists
+  become: "{{ 'true' if checked_privs.failed == false else 'false' }}"
+  become_user: "{{ tomcat_user }}"
+
 # WARNING loop order matters as positional arguments are used later in play
 - name: Check deployed Tomcat webapps
   stat: 
-    path: "{{ catalina_base }}/webapps/{{ item | replace('/','#') }}"
+    path: "{{ app_base_value }}/{{ item | replace('/','#') }}"
     get_attributes: no
     follow: yes
   register: webapp_path
@@ -148,5 +183,5 @@
   when: catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
 
 - include: gc_log.yml
-  when: outer_loop.find('-Xloggc') != -1 and catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
+  when: outer_loop.find('-Xlog:gc') != -1 and catalina_base in [ alfresco_base | default(None), share_base | default(None), solr_base | default(None) ]
 
